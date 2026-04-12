@@ -62,7 +62,7 @@ The workbook now includes a visible `PM After Switch` sheet for PM conversion af
 
 Sheet interpretation:
 - First switch is after `3-5` YOE at Jump, followed by two base-salary-only noncompete years. The visible default `3x` pre-PM IC comp bump anchors to the switch-year package after noncompete.
-- PM starts in requested projection year `7` or `8`, but formulas delay PM comp until the later of the requested PM start and the first post-noncompete year. A 5Y switch with requested PM Y7 therefore effectively starts PM in Y8.
+- PM starts in requested projection year `7` or `8`, but formulas delay PM comp until the later of the requested PM start and the first post-noncompete year. A 5Y switch with requested PM Y7 therefore effectively starts PM in Y8, so the workbook now omits the duplicate 5Y-requested-PM-Y7 rows and keeps the effective Y8 cases.
 - PM gross comp is modeled as PM base salary plus payout share times net PnL, paid as same-year gross cash for this scenario sheet.
 - PM case table: Starter = `$10M` net PnL at `15%` payout plus `$300K` base (`$1.8M` gross), Base = `$25M` at `15%` plus base (`$4.05M`), Upside = `$50M` at `20%` plus base (`$10.3M`), Tail = `$100M` at `15%` plus base (`$15.3M`).
 - PM-specific deferral, platform pass-through costs, drawdown, clawback, and seat-loss probability are not modeled yet. Those should be revised once the user has actual PM terms or attributable PnL.

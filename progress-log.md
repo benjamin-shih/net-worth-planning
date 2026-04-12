@@ -1,5 +1,22 @@
 # Progress Log
 
+## 2026-04-12 (session 14) - workbook cleanup and UX pass
+
+Context:
+- User asked to fix all findings from the workbook review and run an aesthetics / UX pass, using subagents to refine ideas.
+
+Implementation:
+- Replaced hardcoded switch-scenario calendar-year formulas with `Model Inputs!B22`-linked formulas.
+- Fixed `Tax Assumptions!A1`.
+- Pruned duplicate `5Y -> PM Y7` rows/helper blocks from `PM After Switch` because the two-year noncompete makes them identical to effective `5Y -> PM Y8`.
+- Added validation/dropdown guardrails on key editable model controls and scenario inputs.
+- Added summary auto filters, tab colors, gridline-off polish, outline grouping for helper blocks, and notes clarifying that the lower `Scenario Lab` frontier engine is live dashboard support.
+
+Verification:
+- Recalculated and saved through Excel, then closed Excel.
+- `make validate` passed.
+- Verified all sheets visible, no lock file, no cached formula errors, no unsupported formula tokens, no remaining hardcoded `2025+` formulas, no formulas referencing the removed PM helper tail, and targeted scenario sheets have zero numeric `General` formatting drift.
+
 ## 2026-04-12 (session 13) - scenario sheet number-format cleanup
 
 Context:

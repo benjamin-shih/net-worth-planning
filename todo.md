@@ -65,6 +65,11 @@ Done:
 - cleaned up scenario sheet number formats (session 13)
   - fixed Y15 summary dollar columns and helper year/YOE fields on `IC Switch Scenarios` and `PM After Switch`
   - added a reusable all-sheet number-format audit rule to the global `spreadsheet` skill
+- completed UX / aesthetics cleanup pass (session 14)
+  - linked switch-scenario calendar years to `Model Inputs!B22` instead of hardcoded `2025 + YOE`
+  - fixed `Tax Assumptions!A1`
+  - removed duplicate `5Y -> PM Y7` PM cases and helper blocks because noncompete makes them identical to effective `5Y -> PM Y8`
+  - added validation/dropdown guardrails, auto filters, tab colors, gridline-off polish, helper outline grouping, and live sensitivity-engine notes
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time

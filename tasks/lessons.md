@@ -130,3 +130,25 @@ The workbook validation focused on formulas, cached values, and sheet visibility
 
 ### Prevention Rule
 After spreadsheet formula or structural edits, audit number formats on all affected sheets before delivery. For financial models, explicitly verify currency-intent columns use dollar formats and year/YOE/counter columns use integer/text formats; cached formula correctness alone is not enough.
+
+---
+
+### Failure
+A workbook patch script failed before saving because it attempted to assign cell values while iterating over merged-cell placeholders.
+
+### Root Cause
+`openpyxl` exposes non-anchor merged cells as read-only `MergedCell` objects, but the formula rewrite loop treated every cell object as writable.
+
+### Prevention Rule
+When bulk-editing workbooks with merged titles or section headers, skip `MergedCell` objects and write only to normal cell anchors.
+
+---
+
+### Failure
+A workbook patch script failed before saving when adding data validation over a space-separated multi-range string.
+
+### Root Cause
+`openpyxl`'s `DataValidation.add()` expects a single coordinate/range per call, even though Excel validation references can represent multiple ranges.
+
+### Prevention Rule
+When applying one data validation rule to multiple disjoint ranges, split the range string and add each range to the validation object separately.

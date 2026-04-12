@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 13)
+Updated: 2026-04-12 (session 14)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -25,7 +25,7 @@ Key sheet roles:
 - `Savings Projection`: canonical year-by-year base projection and compensation schedule.
 - `Scenario Lab`: downside / base / upside scenario mechanics, retirement / house affordability outputs, and sensitivity logic.
 - `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump, modeling two base-salary-only noncompete years, then applying 2x/3x/4x boosted new-firm IC packages anchored to switch-year base + FY bonus accrued through Y8, followed by a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y10 plus Y15 liquid-net-worth readouts.
-- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch, modeling two base-salary-only noncompete years before new-firm or PM comp can start, and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y10 plus Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
+- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch, modeling two base-salary-only noncompete years before new-firm or PM comp can start, and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y10 plus Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks. Duplicate 5Y-requested-PM-Y7 rows are intentionally omitted because the noncompete makes the earliest effective PM start Y8.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
 
@@ -209,6 +209,14 @@ Editing constraints:
     - Fixed `PM After Switch` Y15 summary dollar columns, summary YOE columns, and helper projection/calendar-year columns.
     - Verified no cached formula errors, all sheets visible, no Excel lock file, `make validate` passes, and targeted scenario formatting checks have zero errors.
     - Updated the global `spreadsheet` skill with a reusable rule to audit all-sheet number formats after formula or structural workbook edits.
+
+22. **UX / aesthetics and cleanup pass** (session 14):
+    - Replaced hardcoded `2025 + projection year` calendar-year formulas on `IC Switch Scenarios` and `PM After Switch` with links to `Model Inputs!B22`, so switch scenario calendar years now follow the workbook start year.
+    - Restored the corrupted `Tax Assumptions!A1` title to `Tax Assumptions`.
+    - Removed duplicate `5Y -> PM Y7` PM summary/helper cases because the two-year noncompete delays them to the same economics as effective `5Y -> PM Y8`; `PM After Switch` helper rows now end at row 350 instead of 410.
+    - Added data validation / dropdown guardrails to the main editable controls on `Model Inputs`, `Savings Projection`, `IC Switch Scenarios`, and `PM After Switch`.
+    - Added auto filters to the IC and PM scenario summaries, tab colors, gridline-off polish, outline grouping for helper blocks, and notes marking the `Scenario Lab` lower frontier engine as live dashboard support rather than dead bloat.
+    - Verified after Excel recalculation: no cached formula errors, all sheets visible, no lock file, no unsupported formula tokens, no hardcoded `2025+` formulas, and no formulas pointing at the removed PM helper tail.
 
 ## Latest Debugging Pass
 
