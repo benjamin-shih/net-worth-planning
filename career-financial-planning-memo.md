@@ -51,6 +51,33 @@ Sheet interpretation:
 - The sheet uses current workbook tax tables, rent/living assumptions, retirement contributions, and base return.
 - House + immediate-retirement thresholds are computed from base home assumptions in `Model Inputs`; current values are about `$14.0M` for a `$5M` all-cash house, `$16.9M` for `$5M` with 50% down, `$17.3M` for `$7M` all-cash, and `$21.4M` for `$7M` with 50% down.
 
+
+## PM After Switch Scenario Sheet
+
+The workbook now includes a visible `PM After Switch` sheet for PM conversion after a first IC job switch.
+
+Sheet interpretation:
+- First switch is after `3-5` YOE at Jump, with a visible default `3x` pre-PM IC comp bump until PM start.
+- PM starts in projection year `7` or `8`.
+- PM gross comp is modeled as PM base salary plus payout share times net PnL, paid as same-year gross cash for this scenario sheet.
+- PM case table: Starter = `$10M` net PnL at `15%` payout plus `$300K` base (`$1.8M` gross), Base = `$25M` at `15%` plus base (`$4.05M`), Upside = `$50M` at `20%` plus base (`$10.3M`), Tail = `$100M` at `15%` plus base (`$15.3M`).
+- PM-specific deferral, platform pass-through costs, drawdown, clawback, and seat-loss probability are not modeled yet. Those should be revised once the user has actual PM terms or attributable PnL.
+
+Current cached examples after Excel recalculation:
+
+```text
+Scenario              Y10 wealth     First $5M cash     Read
+------------------    -----------    ---------------    --------------------------
+3Y -> PM Y7 Starter   ~$9.67M        Y14 / 2039         short of $5M retire+house by Y10
+3Y -> PM Y7 Base      ~$14.31M       Y10 / 2035         clears $5M cash by Y10
+3Y -> PM Y7 Upside    ~$27.04M       Y8 / 2033          clears $7M 50% down by Y10
+3Y -> PM Y7 Tail      ~$37.21M       Y8 / 2033          clears $7M 50% down by Y10
+```
+
+Interpretation:
+- PM is not automatically better than a strong IC switch. The Starter PM case can lag the 3x IC-switch path because `$1.8M` PM gross comp is below some bumped IC cash-comp years.
+- The PM path becomes decisive when attributable net PnL is closer to the Base/Upside cases.
+
 ## Noncompete / Deferred Comp Treatment
 
 The workbook discussion distinguished:

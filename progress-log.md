@@ -285,3 +285,25 @@ Cycle 1: rename and path-reference cleanup
 - Renamed Desktop folders to avoid spaces in shell display: net worth repo -> Net-Worth-Planning, non-net-worth personal files -> Personal, offer-letter files -> Offer-Letters.
 - Updated repo continuity docs and local settings path references to the new hyphenated paths.
 - Verified old path strings no longer appear in the repo docs or compact Codex memory.
+
+
+## 2026-04-12 (session 8) - PM after first-switch scenario sheet
+
+Context:
+- User wanted to model switching to PM after making a first job switch, likely around projection year 7 or 8.
+
+Design:
+- Added a separate visible `PM After Switch` sheet and left the core projection sheets unchanged.
+- Modeled first switch after 3/4/5 YOE with a visible default 3x IC bump until PM start.
+- Modeled PM start in Y7/Y8 with four visible PM economics cases: Starter, Base, Upside, and Tail.
+- PM gross comp = PM base salary + payout share x net PnL, treated as same-year gross cash. PM-specific deferral, platform pass-through costs, drawdown, clawback, and seat-loss risk are intentionally not modeled yet.
+
+Implementation:
+- Built a 24-scenario summary and visible Y1-Y30 helper model.
+- Reused the existing tax tables, rent/living inflation, retirement contribution logic, base investment return, and `$5M` / `$7M` house + immediate-retirement thresholds.
+- First pass overlapped the default IC bump control with the threshold table; rebuilt the sheet with controls in `J15:J17` and PM cases in `L15:O18`.
+
+Verification:
+- Recalculated and saved through Excel via JXA, then closed the workbook.
+- Verified with `openpyxl` that all sheets are visible, the Excel lock file is gone, no cached formula errors are present, and the new sheet caches summary values.
+- Current examples: 3Y -> PM Y7 Starter caches about `$9.67M` Y10 wealth; 3Y -> PM Y7 Base caches about `$14.31M`; 3Y -> PM Y7 Upside caches about `$27.04M`.

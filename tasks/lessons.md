@@ -65,3 +65,14 @@ The machine handled some Excel actions more reliably through JXA than through ad
 
 ### Prevention Rule
 Prefer `osascript -l JavaScript` for Excel open / close / save automation on this machine when deterministic workbook lifecycle control matters.
+
+---
+
+### Failure
+A scenario-sheet control cell overlapped an existing threshold table row, causing the intended default IC bump control to be overwritten by the `$5M` home-price input.
+
+### Root Cause
+The new PM sheet reused the threshold table's row range for both controls and threshold outputs instead of reserving a separate control block.
+
+### Prevention Rule
+When adding new scenario-sheet controls, reserve a non-overlapping visible control block first, then wire summary/helper formulas to that block and spot-check the control cell cached values before recalc.

@@ -40,9 +40,15 @@ Done:
   - includes `$5M` / `$7M` all-cash and 50%-down house + immediate-retirement thresholds, scenario Y10 net worth, surplus / shortfall, and first crossing year through Y30
   - shows gross walk-away `BK` separately and does not deduct it; buyout / exact forfeiture / noncompete tax timing remains out of scope
   - first implementation used `MINIFS` for crossing years, which Excel cached as `#NAME?`; replaced it with visible helper first-crossing columns using `SUMIFS`, then recalculated and verified
+- added `PM After Switch` sheet (session 8)
+  - separate visible sheet for PM in Y7/Y8 after a first IC job switch after 3/4/5 YOE
+  - uses a visible default 3x pre-PM IC bump, then Starter/Base/Upside/Tail PM cases based on net PnL x payout share plus base salary
+  - treats PM payout as same-year gross cash and explicitly leaves PM deferral, platform cost allocation, drawdown, clawback, and seat-loss risk out of scope
+  - fixed an initial control/table overlap before final Excel recalculation and verified no cached formula errors
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time
+- if the user gets actual PM terms or attributable PnL, revise `PM After Switch` from illustrative PnL cases into a contract-aware pod model
 - visually QA dashboard charts after the session-4 tranche-model changes — especially scenarios that reference bonus timing and year-over-year cash growth (CY2027 is noticeably lower than the old model)
 - if the user wants direct editing in the visible gross-comp column, redesign the UI rather than making the output column dual-purpose
 - consider whether `BK` Unvested Deferred Comp should surface on the Financial Dashboard as a dedicated "walk-away cost" KPI card. Currently it only lives inline on the Savings Projection sheet.

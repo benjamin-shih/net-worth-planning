@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-11 (session 7)
+Updated: 2026-04-12 (session 8)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -17,6 +17,7 @@ Visible sheets:
 - `Savings Projection`
 - `Scenario Lab`
 - `IC Switch Scenarios`
+- `PM After Switch`
 - `Tax Assumptions`
 
 Key sheet roles:
@@ -24,6 +25,7 @@ Key sheet roles:
 - `Savings Projection`: canonical year-by-year base projection and compensation schedule.
 - `Scenario Lab`: downside / base / upside scenario mechanics, retirement / house affordability outputs, and sensitivity logic.
 - `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump and applying 2x/3x/4x IC quant cash-comp bumps, with `$5M` / `$7M` house + immediate-retirement threshold checks.
+- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch, with visible PM net-PnL / payout-share cases and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
 
@@ -164,6 +166,15 @@ Editing constraints:
     - Computes `$5M` / `$7M` all-cash and 50%-down house + immediate-retirement thresholds from base home assumptions in `Model Inputs`.
     - Verified after Excel recalc: all first-crossing formulas calculate without `#NAME?`; sheet is visible; Excel lock file absent.
 
+16. **Added `PM After Switch` sheet** (session 8):
+    - Separate visible sheet; no changes to the core projection mechanics.
+    - Models a first IC job switch after 3/4/5 YOE with a visible default 3x pre-PM IC bump, then PM start in projection year 7 or 8.
+    - PM economics are visible cases: Starter (`$10M` net PnL × 15% payout + `$300K` base = `$1.8M` gross), Base (`$25M` × 15% + `$300K` = `$4.05M`), Upside (`$50M` × 20% + `$300K` = `$10.3M`), and Tail (`$100M` × 15% + `$300K` = `$15.3M`).
+    - PM payout is modeled as same-year gross cash for scenario analysis; PM-specific deferral, clawback, platform cost allocation, drawdown, and seat-loss probability are not modeled.
+    - Reuses the workbook tax tables, rent/living inflation, retirement contributions, base return, and `$5M` / `$7M` home + retirement thresholds.
+    - First implementation overlapped a new control cell with the threshold table; fixed by moving controls to `J15:J17` and PM cases to `L15:O18` before recalculation.
+    - Verified after Excel recalc: sheet is visible, all sheets remain visible, controls cache correctly, and no cached formula errors appear on the new sheet.
+
 ## Latest Debugging Pass
 
 The latest pass fixed the issues the user flagged about manual extension and stale scenario behavior.
@@ -191,6 +202,8 @@ Verified after the session-6 IC quant calibration and save-through-Excel:
 - Projection year 5 / CY2030: trend total comp about `$1.25M`, accrued total comp about `$1.15M` after the negative swing, and cash gross comp about `$954K`.
 - Projection year 8 / CY2033: trend total comp about `$2.25M`, accrued total comp about `$2.05M` after the negative swing, and cash gross comp about `$1.87M`.
 - Projection year 10 / CY2035: cash gross comp about `$2.60M`; total wealth at base return about `$6.43M`.
+
+- `PM After Switch` has 24 scenarios: first switch after 3/4/5 YOE, default 3x pre-PM IC bump, PM start in Y7/Y8, and Starter/Base/Upside/Tail PM economics. Current cached examples: 3Y -> PM Y7 Starter reaches about `$9.67M` Y10 wealth and first clears the `$5M` all-cash threshold in Y14 / 2039; 3Y -> PM Y7 Base reaches about `$14.31M` Y10 wealth; 3Y -> PM Y7 Upside reaches about `$27.04M` Y10 wealth and clears `$7M` 50% down by Y10.
 
 Verified in Excel after cash-basis lump model (session 2, now superseded):
 - `BB19 = $550,000`, `BB20 = $450,000`, `BB21 = $750,000`, `BB22 = $970,633`.
