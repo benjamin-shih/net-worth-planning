@@ -3,6 +3,7 @@
 Local supplement for `/Users/benjaminshih/Desktop/Net-Worth-Planning`.
 
 Read `/Users/benjaminshih/.claude/CLAUDE.md` first, then use this file for workbook-specific continuity.
+Default coding/project guidance skill: `/Users/benjaminshih/.agents/skills/karpathy-guidelines/SKILL.md` (loaded by the shared bootstrap).
 
 ## Net Worth Workbook
 

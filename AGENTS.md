@@ -21,7 +21,7 @@ Before doing any work (Standard or Complex tasks):
 2. Read `/Users/benjaminshih/.agents/shared/SKILL_SELECTION_POLICY.md`.
 3. Read `/Users/benjaminshih/.agents/shared/HANDOFF_PROTOCOL.md`.
 4. Read `/Users/benjaminshih/.agents/shared/DOMAIN_QUALITY_GATES.md`.
-5. Read `/Users/benjaminshih/.agents/skills/SKILLS.md`.
+5. Read `/Users/benjaminshih/.agents/skills/SKILLS.md`, then immediately read `/Users/benjaminshih/.agents/skills/karpathy-guidelines/SKILL.md` and treat it as the default coding/project guidance overlay.
 6. If `AGENTS_ACTIVE_TASK` is set or startup context identifies a task, read the bound task package before selecting new work.
 7. If the task is project/course-specific, read the corresponding local skills index (for example `<project>/.agents/skills/SKILLS.md`).
 8. Traverse the skill graph by links:
