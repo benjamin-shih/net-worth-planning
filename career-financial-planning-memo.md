@@ -18,7 +18,7 @@ Core target cases discussed:
 ## Live Workbook State Observed
 
 The workbook path is:
-- `/Users/benjaminshih/Desktop/Net Worth Planning/Net Worth.xlsx`
+- `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
 
 Observed during this session:
 - After the 2026-04-11 IC quant compensation recalibration, the live workbook's base case has about `$6.43M` total wealth at projection year 10 / calendar 2035.

@@ -188,7 +188,7 @@ Cycle 3: verification
 ## 2026-04-09 (session 2) — Cash-basis bonus model
 
 Context:
-- User provided Jump Trading offer letter PDF at `~/Desktop/Offer Letters/Addendum`
+- User provided Jump Trading offer letter PDF at `~/Desktop/Offer-Letters/Addendum`
 - Previous model used accrual basis: FY bonus booked in the year earned
 - Offer letter specifies deferred payment: 50% by March 15, 25% at 6 months, 25% at 12 months after FY end
   → entire FY bonus arrives in the *following* calendar year (cash basis)
@@ -227,7 +227,7 @@ Cycle 6: save and verification
 ## 2026-04-09 15:37:37 PDT
 
 Context:
-- workbook under active iteration at `/Users/benjaminshih/Desktop/Net Worth Planning/Net Worth.xlsx`
+- workbook under active iteration at `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
 - user reported that some cells still did not populate correctly when manually adding more years
 
 Cycle 1: propagation audit
@@ -273,5 +273,15 @@ Cycle 7: explicit gap test
   - scenario year 13 remained `Working`
 
 Cycle 8: continuity package
-- created local handoff files in `Desktop/Net Worth Planning`
+- created local handoff files in `Desktop/Net-Worth-Planning`
 - documented workbook state, lessons, and next steps for Claude or Codex continuation
+
+## 2026-04-12 01:11:59 UTC - directory rename maintenance
+
+Context:
+- User wanted the non-net-worth personal files folder renamed to a regular personal-files location and asked whether quoted directory names in ls could be removed.
+
+Cycle 1: rename and path-reference cleanup
+- Renamed Desktop folders to avoid spaces in shell display: net worth repo -> Net-Worth-Planning, non-net-worth personal files -> Personal, offer-letter files -> Offer-Letters.
+- Updated repo continuity docs and local settings path references to the new hyphenated paths.
+- Verified old path strings no longer appear in the repo docs or compact Codex memory.

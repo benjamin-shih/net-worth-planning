@@ -1,20 +1,20 @@
 # CLAUDE.md
 
-Local supplement for `/Users/benjaminshih/Desktop/Net Worth Planning`.
+Local supplement for `/Users/benjaminshih/Desktop/Net-Worth-Planning`.
 
 Read `/Users/benjaminshih/.claude/CLAUDE.md` first, then use this file for workbook-specific continuity.
 
 ## Net Worth Workbook
 
 Primary file:
-- `/Users/benjaminshih/Desktop/Net Worth Planning/Net Worth.xlsx`
+- `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
 
 Before touching the workbook, read these files in order:
-1. `/Users/benjaminshih/Desktop/Net Worth Planning/net-worth-workbook-handoff.md`
-2. `/Users/benjaminshih/Desktop/Net Worth Planning/todo.md`
-3. `/Users/benjaminshih/Desktop/Net Worth Planning/progress-log.md`
-4. `/Users/benjaminshih/Desktop/Net Worth Planning/tasks/lessons.md`
-5. `/Users/benjaminshih/Desktop/Net Worth Planning/career-financial-planning-memo.md`
+1. `/Users/benjaminshih/Desktop/Net-Worth-Planning/net-worth-workbook-handoff.md`
+2. `/Users/benjaminshih/Desktop/Net-Worth-Planning/todo.md`
+3. `/Users/benjaminshih/Desktop/Net-Worth-Planning/progress-log.md`
+4. `/Users/benjaminshih/Desktop/Net-Worth-Planning/tasks/lessons.md`
+5. `/Users/benjaminshih/Desktop/Net-Worth-Planning/career-financial-planning-memo.md`
 
 ## Operating Notes
 

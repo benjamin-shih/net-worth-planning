@@ -1,6 +1,6 @@
 # Todo
 
-Scope: maintain continuity for `/Users/benjaminshih/Desktop/Net Worth Planning/Net Worth.xlsx` so another agent can continue without replaying the full debugging session.
+Scope: maintain continuity for `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx` so another agent can continue without replaying the full debugging session.
 
 Done:
 - created project-local `CLAUDE.md`

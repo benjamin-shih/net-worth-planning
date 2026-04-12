@@ -76,14 +76,14 @@ python3 /Users/benjaminshih/.agents/dispatch/scripts/run_workflow.py \
 ## Net Worth Workbook
 
 Primary workbook:
-- `/Users/benjaminshih/Desktop/Net Worth Planning/Net Worth.xlsx`
+- `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
 
 Before answering questions about the workbook or editing it, read these continuity files:
-1. `/Users/benjaminshih/Desktop/Net Worth Planning/net-worth-workbook-handoff.md`
-2. `/Users/benjaminshih/Desktop/Net Worth Planning/todo.md`
-3. `/Users/benjaminshih/Desktop/Net Worth Planning/progress-log.md`
-4. `/Users/benjaminshih/Desktop/Net Worth Planning/tasks/lessons.md`
-5. `/Users/benjaminshih/Desktop/Net Worth Planning/career-financial-planning-memo.md`
+1. `/Users/benjaminshih/Desktop/Net-Worth-Planning/net-worth-workbook-handoff.md`
+2. `/Users/benjaminshih/Desktop/Net-Worth-Planning/todo.md`
+3. `/Users/benjaminshih/Desktop/Net-Worth-Planning/progress-log.md`
+4. `/Users/benjaminshih/Desktop/Net-Worth-Planning/tasks/lessons.md`
+5. `/Users/benjaminshih/Desktop/Net-Worth-Planning/career-financial-planning-memo.md`
 
 There is also a compact Codex memory at:
 - `/Users/benjaminshih/.codex/memories/personal-net-worth-career-plan.md`
@@ -101,7 +101,7 @@ There is also a compact Codex memory at:
 
 The user wants this folder and workbook to serve as a long-running planning system over future years. The core goal is to track whether their quant-finance career path can support early financial independence, a Bay Area return, and a high-end home purchase.
 
-Use `/Users/benjaminshih/Desktop/Net Worth Planning/career-financial-planning-memo.md` for the detailed assumptions and rough conclusions from the 2026-04-11 discussion, including:
+Use `/Users/benjaminshih/Desktop/Net-Worth-Planning/career-financial-planning-memo.md` for the detailed assumptions and rough conclusions from the 2026-04-11 discussion, including:
 - `$7M` vs `$5M` Bay Area home cases.
 - Immediate retirement vs buying while continuing to work.
 - Noncompete pay modeled as temporary base-salary income when working outside finance, not as spendable deferred bonus and not as a blocker to a non-finance Bay Area job.

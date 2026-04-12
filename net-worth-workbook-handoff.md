@@ -3,7 +3,7 @@
 Updated: 2026-04-11 (session 7)
 
 Workbook:
-- `/Users/benjaminshih/Desktop/Net Worth Planning/Net Worth.xlsx`
+- `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
 
 ## Goal
 
@@ -138,7 +138,7 @@ Editing constraints:
 8. Fixed multiple propagation bugs caused by manually extending the working horizon.
 9. Removed circular-reference behavior introduced by trying to make the visible gross-comp output column act like an input.
 10. **Switched bonus model from accrual-basis to cash-basis** per the Jump Trading offer letter deferred payment schedule (session 2):
-    - Read the offer letter (`~/Desktop/Offer Letters/Addendum` PDF).
+    - Read the offer letter (`~/Desktop/Offer-Letters/Addendum` PDF).
     - First pass used a lump simplification: the entire fiscal year's bonus was assumed to arrive in the *following* calendar year.
     - Pinned years 1–3 with Bonus Override (`AX19=0`, `AX20=150000`, `AX21=450000`).
     - Updated AU Trend Bonus formula to shift growth exponent from `(AN-2)` to `(AN-3)`.
