@@ -444,3 +444,47 @@ Verification:
 - Recalculated and saved through Microsoft Excel via JXA, then closed the workbook.
 - Ran `make validate`; validation passed.
 - Verified no hidden sheets, no cached formula errors, table parts present for the three new Excel Tables, `ScenarioResultKeys` present, dashboard selector resolving to the first normalized scenario result, and zero targeted `General` number-format issues in the new/changed presentation ranges.
+
+## 2026-04-12 16:54:06 PDT - advanced analysis pass
+
+Context:
+- User wanted the advanced next pass implemented one item at a time with subagent critique first, then correctness/functionality verification after each item.
+
+Design:
+- Kept native PivotTables/slicers and Power Query out of scope for this pass because the local Excel automation surface could not safely author them from scratch.
+- Added a dedicated `Scenario Analysis` sheet as the advanced presentation surface rather than crowding the dashboard or reusing helper-engine sheets.
+- Used `tblScenarioResults` for selector-driven summaries and matrices, and used a local Y1-Y15 chart-data block for charts so the chart series do not depend directly on the helper ranges.
+- Kept named cleanup conservative: range-style names only for selector/result pointers, with dashboard lookup repetition reduced through a helper pointer cell.
+
+Implementation:
+- Added `scripts/enhance_workbook_advanced.py` with phased execution:
+  - phase 1 builds `Scenario Analysis`, support lists, selectors, comparison table, matrices, and chart data block
+  - phase 2 adds two compact line charts
+  - phase 3 adds presentation-layer defined names and rewires dashboard selector formulas
+- Added `Scenario Analysis` with:
+  - primary/comparison scenario dropdowns
+  - horizon and chart-metric dropdowns
+  - selected-horizon comparison block
+  - IC and PM liquid-net-worth matrices
+  - local chart data at `X41:AC56`
+  - two line charts anchored at `A41` and `I41`
+- Rewired the dashboard selector region to use `DashboardScenarioResultRow` backed by `Financial Dashboard!P104`, and kept `DashboardSelectedProjectionRow` as a name pointing at `Financial Dashboard!J65`.
+
+Corrections during implementation:
+- First named-formula attempt serialized formula-based defined names with a leading `=`, which triggered Excel content-recovery prompts on open.
+- Replaced those with range-backed names plus helper worksheet formulas instead.
+- First dashboard cleanup attempt created a direct circular reference by naming `J65` and then setting `J65 = DashboardSelectedProjectionRow`; restored `J65` to the plain projection-row formula and kept the name pointing to the cell.
+
+Verification:
+- Ran `uv run python -m py_compile scripts/enhance_workbook_advanced.py`.
+- Ran phased workbook writes through `uv run python scripts/enhance_workbook_advanced.py --phase 1/2/3`.
+- After each phase, reopened and saved through Excel via JXA and checked structural/package state.
+- Final audit confirmed:
+  - no lock file
+  - all sheets visible
+  - zero cached formula-error cells
+  - `Scenario Analysis` contains exactly two charts
+  - both charts point only to `Scenario Analysis!Y42:AC56`
+  - defined names are all plain range names
+  - targeted new/rewired cells use intended integer or currency formats
+  - `make validate` passes

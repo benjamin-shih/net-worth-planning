@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 15)
+Updated: 2026-04-12 (session 16)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -19,6 +19,7 @@ Visible sheets:
 - `IC Switch Scenarios`
 - `PM After Switch`
 - `Scenario Results`
+- `Scenario Analysis`
 - `Tax Assumptions`
 
 Key sheet roles:
@@ -28,6 +29,7 @@ Key sheet roles:
 - `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump, modeling two base-salary-only noncompete years, then applying 2x/3x/4x boosted new-firm IC packages anchored to switch-year base + FY bonus accrued through Y8, followed by a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y10 plus Y15 liquid-net-worth readouts.
 - `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch, modeling two base-salary-only noncompete years before new-firm or PM comp can start, and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y10 plus Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks. Duplicate 5Y-requested-PM-Y7 rows are intentionally omitted because the noncompete makes the earliest effective PM start Y8.
 - `Scenario Results`: normalized presentation sheet added in session 15. It contains true Excel Table `tblScenarioResults` with one row per IC/PM scenario and Y10/Y15 horizon, plus a visible note listing higher-risk next-pass enhancements. It is a linked presentation layer, not a new calculation engine.
+- `Scenario Analysis`: advanced presentation sheet added in session 16. It contains selector-driven scenario comparisons, selected-horizon IC/PM liquid-net-worth matrices, a local chart-data block, and two compact line charts bound only to the local analysis block rather than directly to the helper engines.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
 
@@ -229,6 +231,16 @@ Editing constraints:
     - Added dashboard navigation links and backlinks from major sheets where a blank `A3` anchor was available.
     - Deferred higher-risk enhancements to a next pass: PivotTables/slicers over `tblScenarioResults`, compact scenario trajectory sparklines, named formulas or `LET` / `LAMBDA` cleanup after a formula audit, and Power Query only if external data imports become necessary.
     - Verification after Excel recalculation: all sheets visible, no cached formula errors, three table parts present in the `.xlsx`, `ScenarioResultKeys` present, dashboard selector resolving, no Excel lock file, `make validate` passes, and targeted new/changed currency-output ranges have zero `General` number-format issues.
+
+24. **Advanced analysis pass** (session 16):
+    - Added visible `Scenario Analysis` sheet after `Scenario Results`.
+    - Added selector controls for primary scenario, comparison scenario, horizon, and chart metric, backed by visible support lists on the same sheet.
+    - Added one selected-horizon comparison table, one IC liquid-net-worth matrix, one PM liquid-net-worth matrix, and a local Y1-Y15 chart-data block.
+    - Added two compact native Excel line charts on `Scenario Analysis`, both sourced only from the local chart-data block (`Y42:AC56`) rather than directly from `IC Switch Scenarios` or `PM After Switch`.
+    - Added conservative presentation-layer defined names only: analysis selectors/result pointers plus dashboard selector pointers. `DashboardScenarioResultRow` now points to `Financial Dashboard!P104`, and `DashboardSelectedProjectionRow` points to `Financial Dashboard!J65`.
+    - Rewired the repeated dashboard scenario selector formulas to read through `DashboardScenarioResultRow` instead of repeating `MATCH(...)` inline everywhere.
+    - Native PivotTables/slicers and Power Query remain deferred. AppleScript/JXA probing on this machine did not yield a safe from-scratch pivot/slicer authoring path, so this pass uses selector-driven tables and compact charts instead.
+    - Verification after Excel recalculation: workbook opened normally without recovery prompts, saved and closed through Excel via JXA, all sheets remained visible, no cached formula errors remained, `Scenario Analysis` had two charts with series bound to local ranges only, defined names serialized as plain range names, no lock file remained, and `make validate` passed.
 
 ## Latest Debugging Pass
 

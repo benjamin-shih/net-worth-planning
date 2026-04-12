@@ -185,3 +185,25 @@ The repo was originally a workbook-only repository and had no project-local Pyth
 
 ### Prevention Rule
 When adding Python-based workbook tooling to this repo, maintain `pyproject.toml` / `uv.lock` and run validation or patch scripts through `uv run`, including shell validators that invoke small Python snippets.
+
+---
+
+### Failure
+Excel opened the workbook with a content-recovery prompt after a workbook patch that added formula-style defined names.
+
+### Root Cause
+The patch script wrote defined-name formulas with a leading `=` in `attr_text`, which serialized into workbook XML in a form Excel treated as damaged content for this file.
+
+### Prevention Rule
+When adding defined names with `openpyxl`, prefer plain range-backed names. If a formula-backed name is absolutely necessary, verify the exact serialized workbook XML and reopen the workbook in Excel before layering more changes on top.
+
+---
+
+### Failure
+A dashboard cleanup pass introduced a direct circular reference in `Financial Dashboard!J65`.
+
+### Root Cause
+The patch named `J65` as `DashboardSelectedProjectionRow` and then rewrote `J65` to the formula `=DashboardSelectedProjectionRow`, causing the cell to refer to itself through the defined name.
+
+### Prevention Rule
+When naming helper cells in Excel, keep the worksheet formula in the cell and let the name point to the cell. Never rewrite that same cell to a formula that references its own defined name.

@@ -77,6 +77,11 @@ Done:
   - added a Financial Dashboard scenario-result dropdown selector wired to the normalized results table
   - added conditional formatting for threshold deltas, shortfall/read text, and first-crossing failures
   - added dashboard navigation links and backlink anchors on major sheets
+- completed advanced analysis pass (session 16)
+  - added `Scenario Analysis` sheet with selector-driven comparison controls, selected-horizon comparison outputs, IC/PM liquid-net-worth matrices, and local chart-data block
+  - added two compact line charts bound only to `Scenario Analysis` local ranges
+  - added conservative presentation-layer defined names and rewired dashboard scenario selector formulas through a helper pointer cell
+  - fixed Excel recovery/circular-reference regressions during implementation by switching formula-defined names to range-backed names and restoring `Financial Dashboard!J65` to a plain formula
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time
@@ -84,4 +89,6 @@ Open follow-ups for the next agent:
 - visually QA dashboard charts after the session-4 tranche-model changes — especially scenarios that reference bonus timing and year-over-year cash growth (CY2027 is noticeably lower than the old model)
 - if the user wants direct editing in the visible gross-comp column, redesign the UI rather than making the output column dual-purpose
 - consider whether `BK` Unvested Deferred Comp should surface on the Financial Dashboard as a dedicated "walk-away cost" KPI card. Currently it only lives inline on the Savings Projection sheet.
-- next advanced Excel pass candidates: PivotTables and slicers over `tblScenarioResults`, compact scenario trajectory sparklines, and named formulas / `LET` / `LAMBDA` cleanup for repeated phase-gating logic after a separate formula audit. Defer Power Query until external data imports become part of the workbook.
+- native PivotTables/slicers remain deferred unless a safe template-seeding or manual-creation workflow is established for this Excel environment
+- true sparklines remain deferred; this pass uses compact line charts instead
+- Power Query remains deferred unless external data imports become part of the planning workflow
