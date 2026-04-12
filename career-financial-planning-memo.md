@@ -45,14 +45,15 @@ Workbook interpretation:
 The workbook now includes a visible `IC Switch Scenarios` sheet for revisiting whether the user should consider switching jobs after `3-5` YOE at Jump for a `2x-4x` IC quant pay bump.
 
 Sheet interpretation:
-- The bump applies to the ongoing baseline cash gross-comp path from the year after the switch through Y8.
+- Switch-after-N means Jump years 1..N, two base-salary-only noncompete years in N+1 and N+2, and boosted new-firm IC comp starting in N+3.
+- The 2x-4x bump applies to the switch-year package (`base earned + FY bonus accrued`) after noncompete and through Y8, not to each later baseline cash-gross year.
 - After Y8, the IC switch path should not keep compounding. The current sheet uses visible plateau controls at `IC Switch Scenarios!J15:J17`: start after Y8, `$3.5M` midpoint, and `$0.5M` variability band. This is meant to reflect the user's view that staying as an IC likely stagnates around roughly `$3M-$4M` annual comp with variability.
 - PM carry / pod economics are intentionally excluded.
 - Gross walk-away `BK` is shown separately and not deducted, because exact buyout / deferred-comp forfeiture / noncompete tax timing is not modeled.
 - The sheet uses current workbook tax tables, rent/living assumptions, retirement contributions, and base return.
 - The sheet stops at Y15 and shows both Y10 and Y15 taxable balance, retirement balance, and liquid net worth for each scenario.
 - House + immediate-retirement thresholds are computed from base home assumptions in `Model Inputs`; current values are about `$14.0M` for a `$5M` all-cash house, `$16.9M` for `$5M` with 50% down, `$17.3M` for `$7M` all-cash, and `$21.4M` for `$7M` with 50% down.
-- Current cached Y10/Y15 liquid net worth examples: 3Y 2x about `$11.18M` / `$23.92M`, 3Y 3x about `$14.73M` / `$28.67M`, 3Y 4x about `$18.27M` / `$33.40M`, and 5Y 4x about `$14.94M` / `$28.95M`.
+- Current cached Y10/Y15 liquid net worth examples after adding the two-year base-only noncompete: 3Y 2x about `$6.90M` / `$18.19M`, 3Y 3x about `$8.16M` / `$19.89M`, 3Y 4x about `$9.43M` / `$21.58M`, and 5Y 4x about `$7.86M` / `$19.48M`.
 
 
 ## PM After Switch Scenario Sheet
@@ -60,8 +61,8 @@ Sheet interpretation:
 The workbook now includes a visible `PM After Switch` sheet for PM conversion after a first IC job switch.
 
 Sheet interpretation:
-- First switch is after `3-5` YOE at Jump, with a visible default `3x` pre-PM IC comp bump until PM start.
-- PM starts in projection year `7` or `8`.
+- First switch is after `3-5` YOE at Jump, followed by two base-salary-only noncompete years. The visible default `3x` pre-PM IC comp bump anchors to the switch-year package after noncompete.
+- PM starts in requested projection year `7` or `8`, but formulas delay PM comp until the later of the requested PM start and the first post-noncompete year. A 5Y switch with requested PM Y7 therefore effectively starts PM in Y8.
 - PM gross comp is modeled as PM base salary plus payout share times net PnL, paid as same-year gross cash for this scenario sheet.
 - PM case table: Starter = `$10M` net PnL at `15%` payout plus `$300K` base (`$1.8M` gross), Base = `$25M` at `15%` plus base (`$4.05M`), Upside = `$50M` at `20%` plus base (`$10.3M`), Tail = `$100M` at `15%` plus base (`$15.3M`).
 - PM-specific deferral, platform pass-through costs, drawdown, clawback, and seat-loss probability are not modeled yet. Those should be revised once the user has actual PM terms or attributable PnL.
@@ -71,10 +72,10 @@ Current cached examples after Excel recalculation, capped at Y15:
 ```text
 Scenario              Y10 liquid NW   Y15 liquid NW   First $5M cash     Read
 ------------------    -------------   -------------   ---------------    --------------------------
-3Y -> PM Y7 Starter   ~$9.67M         ~$17.17M        Y14 / 2039         clears $5M 50% down by Y15
-3Y -> PM Y7 Base      ~$14.31M        ~$29.35M        Y10 / 2035         clears $7M 50% down by Y15
-3Y -> PM Y7 Upside    ~$27.04M        ~$62.80M        Y8 / 2033          clears $7M 50% down by Y15
-3Y -> PM Y7 Tail      ~$37.21M        ~$89.51M        Y8 / 2033          clears $7M 50% down by Y15
+3Y -> PM Y7 Starter   ~$6.01M         ~$12.27M        Not by Y15        short of $5M retire+house by Y15
+3Y -> PM Y7 Base      ~$10.65M        ~$24.45M        Y12 / 2037        clears $7M 50% down by Y15
+3Y -> PM Y7 Upside    ~$23.38M        ~$57.91M        Y9 / 2034         clears $7M 50% down by Y15
+3Y -> PM Y7 Tail      ~$33.55M        ~$84.61M        Y8 / 2033         clears $7M 50% down by Y15
 ```
 
 Interpretation:

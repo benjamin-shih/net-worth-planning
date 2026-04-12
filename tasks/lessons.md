@@ -109,3 +109,13 @@ The summary-table rewrite treated Y15 as a replacement horizon rather than an ad
 
 ### Prevention Rule
 When adding a new planning horizon to a scenario sheet, preserve existing horizon readouts unless the user explicitly asks to remove them. Add the new horizon as a separate labeled block and keep helper-range caps independent from summary-display choices.
+---
+
+### Failure
+Switch scenario formulas applied the pay bump immediately after the switch year and multiplied later baseline cash comp, so pre-switch projection years and post-switch compensation timing looked economically inconsistent once the two-year noncompete was considered.
+
+### Root Cause
+The scenario helper treated `Switch After YOE` as a simple formula breakpoint rather than a lifecycle phase with Jump years, base-only noncompete years, and a separate new-firm start. It also used cash-gross timing as the bump anchor instead of the switch-year package.
+
+### Prevention Rule
+For career-transition scenario sheets, model phase gates explicitly: baseline through the completed switch YOE, base-only noncompete for the specified duration, then apply the new-firm package anchored to the switch-year base plus accrued bonus. Keep helper notes clear when projection rows begin before the actual transition.

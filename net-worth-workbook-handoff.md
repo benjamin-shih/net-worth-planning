@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 11)
+Updated: 2026-04-12 (session 12)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -24,8 +24,8 @@ Key sheet roles:
 - `Model Inputs`: single control surface for global return, spending, house, mortgage, and scenario parameters.
 - `Savings Projection`: canonical year-by-year base projection and compensation schedule.
 - `Scenario Lab`: downside / base / upside scenario mechanics, retirement / house affordability outputs, and sensitivity logic.
-- `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump and applying 2x/3x/4x IC quant cash-comp bumps through Y8, then a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y10 plus Y15 liquid-net-worth readouts.
-- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y10 plus Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
+- `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump, modeling two base-salary-only noncompete years, then applying 2x/3x/4x boosted new-firm IC packages anchored to switch-year base + FY bonus accrued through Y8, followed by a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y10 plus Y15 liquid-net-worth readouts.
+- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch, modeling two base-salary-only noncompete years before new-firm or PM comp can start, and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y10 plus Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
 
@@ -44,7 +44,7 @@ Key sheet roles:
   - `AY` (renamed **FY Bonus Accrued**): pure accrual — `AX override → AU × (1+swing)`. The old BC-derived back-solve path is removed.
   - `AX` pins (session 4): `AX19 = 150000` (FY2026 accrued prorated), `AX20 = 450000` (FY2027 full guarantee). `AX21` cleared; trend formula drives FY2028+.
   - IC quant median calibration (session 6): `Model Inputs!B28 = 45.3%` early bonus growth and `Model Inputs!B29 = 27.1%` later bonus growth. These target pre-swing trend total comp of about `$1.25M` in projection year 5 and `$2.25M` in projection year 8, based on the user's updated IC median ranges (`$1.0M-$1.5M` by Y5 and `$1.5M-$3.0M` by Y8). Column `B` is still cash received, so it lags these accrued/trend targets under the 50/25/25 deferral schedule.
-  - IC switch scenarios now plateau after Y8 rather than scaling the external IC bump indefinitely. `IC Switch Scenarios!J15:J17` visibly control the cap: plateau starts after Y8, steady-state midpoint `$3.5M`, variability band `$0.5M`. With the current swing phase this produces about `$3.93M` Y15 cash comp across the IC switch summary cases.
+  - IC switch scenarios now plateau after Y8 rather than scaling the external IC bump indefinitely. `IC Switch Scenarios!J15:J17` visibly control the cap: plateau starts after Y8, steady-state midpoint `$3.5M`, variability band `$0.5M`. With the current swing phase this produces about `$3.93M` Y15 cash comp across the IC switch summary cases. Session 12 corrected switch timing: switch-after-N means Jump years 1..N, noncompete years N+1 and N+2 at base salary only, and new-firm comp starting in N+3. The 2x-4x bump now applies to the switch-year package (`base earned + FY bonus accrued`), not each later year's baseline cash gross comp.
 - Cash layer (new column `BJ`, fed into `BB`):
   - `BJ` **Bonus Cash Received** = `0.75 × AY_{r-1} + 0.25 × AY_{r-2}`, with zero terms for rows before 19.
   - `BJ19 = 0` (no FY has ended before CY2026). `BJ20 = 0.75 × AY19`.
@@ -198,6 +198,12 @@ Editing constraints:
     - Helper rows remain capped at Y15; this change is summary layout only.
     - Verified after Excel recalc: all sheets are visible, Excel has no open workbook, no lock file is present, `make validate` passes, and no cached formula errors appear.
 
+20. **Corrected switch/noncompete timing** (session 12):
+    - Both switch scenario sheets now model switch-after-N as Jump years 1..N, two base-salary-only noncompete years, and new-firm / PM eligibility starting in N+3.
+    - `IC Switch Scenarios` now applies the 2x/3x/4x bump to the switch-year package (`base earned + FY bonus accrued`) after noncompete, through Y8, then returns to the bounded post-Y8 IC plateau.
+    - `PM After Switch` now delays PM comp until the later of requested PM start and first post-noncompete new-firm year; e.g. a 5Y switch with requested PM Y7 is effectively modeled as PM Y8.
+    - Helper notes now explain why projection rows still begin at Y1/CY2026: they are needed to accumulate pre-switch wealth before the actual switch event.
+
 ## Latest Debugging Pass
 
 The latest pass fixed the issues the user flagged about manual extension and stale scenario behavior.
@@ -226,8 +232,8 @@ Verified after the session-11 Y10/Y15 summary restore and save-through-Excel:
 - Projection year 8 / CY2033: trend total comp about `$2.25M`, accrued total comp about `$2.05M` after the negative swing, and cash gross comp about `$1.87M`.
 - Projection year 10 / CY2035: cash gross comp about `$2.60M`; total wealth at base return about `$6.43M`.
 
-- `IC Switch Scenarios` now stops at Y15, caps post-Y8 IC comp around the visible `$3.5M +/- $0.5M` plateau, and shows both Y10 and Y15 summary blocks. Current cached examples: 3Y 2x Y10 liquid NW about `$11.18M` and Y15 liquid NW about `$23.92M`; 3Y 3x Y10 about `$14.73M` and Y15 about `$28.67M`; 3Y 4x Y10 about `$18.27M` and Y15 about `$33.40M`; 5Y 4x Y10 about `$14.94M` and Y15 about `$28.95M`.
-- `PM After Switch` now stops at Y15 and shows both Y10 and Y15 summary blocks. Current cached examples: 3Y -> PM Y7 Starter Y10 liquid NW about `$9.67M` and Y15 about `$17.17M`; 3Y -> PM Y7 Base Y10 about `$14.31M` and Y15 about `$29.35M`; 3Y -> PM Y7 Upside Y10 about `$27.04M` and Y15 about `$62.80M`; 3Y -> PM Y7 Tail Y10 about `$37.21M` and Y15 about `$89.51M`.
+- `IC Switch Scenarios` now stops at Y15, models the two-year base-only noncompete before the boosted package starts, anchors the bump to switch-year base + FY bonus accrued, caps post-Y8 IC comp around the visible `$3.5M +/- $0.5M` plateau, and shows both Y10 and Y15 summary blocks. Current cached examples: 3Y 2x Y10 liquid NW about `$6.90M` and Y15 about `$18.19M`; 3Y 3x Y10 about `$8.16M` and Y15 about `$19.89M`; 3Y 4x Y10 about `$9.43M` and Y15 about `$21.58M`; 5Y 4x Y10 about `$7.86M` and Y15 about `$19.48M`.
+- `PM After Switch` now stops at Y15, models the same two-year base-only noncompete before PM eligibility, and shows both Y10 and Y15 summary blocks. Current cached examples: 3Y -> PM Y7 Starter Y10 liquid NW about `$6.01M` and Y15 about `$12.27M`; 3Y -> PM Y7 Base Y10 about `$10.65M` and Y15 about `$24.45M`; 3Y -> PM Y7 Upside Y10 about `$23.38M` and Y15 about `$57.91M`; 3Y -> PM Y7 Tail Y10 about `$33.55M` and Y15 about `$84.61M`. For 5Y switch cases, requested PM Y7 and requested PM Y8 now intentionally match because both are delayed to the first post-noncompete year, Y8.
 
 Verified in Excel after cash-basis lump model (session 2, now superseded):
 - `BB19 = $550,000`, `BB20 = $450,000`, `BB21 = $750,000`, `BB22 = $970,633`.

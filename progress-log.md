@@ -1,5 +1,22 @@
 # Progress Log
 
+## 2026-04-12 (session 12) - switch/noncompete timing correction
+
+Context:
+- User clarified that a switch after 3/4/5 YOE means the selected Jump years complete first, then two years of noncompete pay only, and only then the new firm package starts.
+- Noncompete pay should be base salary only. The pay bump should be applied to the switch-year package (base + FY bonus accrued), not to each later baseline cash-comp year.
+
+Implementation:
+- Added visible noncompete-year controls to `IC Switch Scenarios` and `PM After Switch` at `J18 = 2`.
+- Rewired `IC Switch Scenarios` helper formulas: baseline through switch year, base-only during noncompete, switch-year package x bump after noncompete through Y8, then post-Y8 plateau.
+- Rewired `PM After Switch` helper formulas: baseline through first switch year, base-only during noncompete, IC switch package x bump before PM, and PM comp only at or after `MAX(requested PM start, first switch YOE + noncompete years + 1)`.
+- Updated helper-block notes to explain why projection rows begin at Y1/CY2026 even though the switch starts later.
+
+Verification:
+- Recalculated and saved through Excel via JXA, then closed Excel.
+- Verified no cached formula errors, all sheets visible, no Excel lock file, and `make validate` passes.
+- Spot-checked phase behavior: 3Y IC cases now have Y4-Y5 base-only and Y6 first boosted year; 5Y IC cases now have Y6-Y7 base-only and Y8 first boosted year; 5Y PM requested Y7 is delayed to Y8 and matches requested Y8.
+
 ## 2026-04-11 (session 7) — IC switch scenario sheet
 
 Context:

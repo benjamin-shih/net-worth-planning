@@ -58,6 +58,10 @@ Done:
   - `IC Switch Scenarios` now shows Y10 and Y15 cash comp, taxable liquid, retirement, liquid net worth, threshold deltas, and read columns
   - `PM After Switch` now shows the same Y10 and Y15 summary blocks
   - first-crossing columns remain capped at Y15
+- corrected switch/noncompete timing (session 12)
+  - switch-after-N now means Jump years 1..N, two base-salary-only noncompete years, then new firm starts in N+3
+  - IC switch bumps now anchor to switch-year base + FY bonus accrued, not later baseline cash gross comp
+  - PM requested starts are delayed until after noncompete when needed; 5Y requested PM Y7 effectively starts Y8
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time
