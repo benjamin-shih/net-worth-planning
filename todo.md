@@ -1,0 +1,48 @@
+# Todo
+
+Scope: maintain continuity for `/Users/benjaminshih/Desktop/Net Worth Planning/Net Worth.xlsx` so another agent can continue without replaying the full debugging session.
+
+Done:
+- created project-local `CLAUDE.md`
+- wrote workbook handoff summary
+- recorded progress log
+- recorded reusable lessons from the debugging work
+- switched bonus model from accrual-basis to cash-basis (session 2, lump simplification)
+  - AX19=0, AX20=150000, AX21=450000 (pins years 1–3 cash)
+  - AU formula exponent shifted from (AN-2) to (AN-3)
+  - AV swing suppressed for years ≤ 3
+  - verified: BB19=$550K / BB20=$450K / BB21=$750K / BB22=$970,633
+- added Realized Comp (Actuals) block at `Savings Projection!BD:BI` (session 3)
+  - BD = computed Actual CY Gross Comp
+  - BE = FY Bonus Earned, BF = CY Base Actual, BG = CY Other / Sign-On Actual, BH = Confirmed?, BI = Notes
+  - rewrote BB to prefer BD > BC > modeled, component-level fallback inside BD
+- confirmed with user that FY2026 guarantee is prorated (4/12) — no change to AX19 pin value
+- replaced lump cash-basis simplification with tranche-aware 50/25/25 model (session 4)
+  - AU / AV / AY flipped to accrual semantics; AX19=150000, AX20=450000 (accrual), AX21 cleared
+  - added BJ Bonus Cash Received (0.75 × AY_{r-1} + 0.25 × AY_{r-2})
+  - added BK Unvested Deferred Comp (YE) walk-away readout (AY_r + 0.25 × AY_{r-1})
+  - rewired BB to use BJ, rewired BD tranche-style (dropped session-3 BE × stub factor)
+  - verified: BB19=$550K / BB20=$412.5K / BB21=$675K / BB22=$750K; BK19=$150K / BK20=$487.5K / BK21=$562.5K
+- fixed pre-existing gap: restored B29 and B30 formulas (literal from session-1 stress test had never been replaced with the `=IF(BBxx="","",BBxx)` formula other rows use). BC29=$5M now propagates through the B column to scenario lab and dashboard correctly.
+- added rent + living-cost inflation drivers (session 5)
+  - new Model Inputs rows: B35 "Rent inflation (annual)" = 3%, B36 "Living cost inflation (annual)" = 3%
+  - added `Savings Projection!BL` "Rent (real $)" and `BM` "Living (real $)" as blue input columns holding the prior literals (78K/80K rent, 40K→50K living) plus matching carry-forward LOOKUP for later years
+  - rewrote `S` (renamed "Rent (nominal)") and `T` (renamed "Other Living Costs (nominal)") to compound BL/BM by (1+rate)^(AN-1)
+  - Scenario Lab still reads S/T so downstream affordability math now uses inflated nominal costs automatically
+  - verified year 10: rent nominal $104K (from $80K flat), living $65K (from $50K flat); save rate 42.9% vs pre-patch 44.9%
+- recalibrated IC quant base compensation path (session 6)
+  - interpreted the user's updated Y5/Y8 IC quant medians as accrued/trend annual total comp, not cash received, because the workbook intentionally lags cash through the 50/25/25 deferral model
+  - set `Model Inputs!B28` early bonus growth to 45.3% and `Model Inputs!B29` later bonus growth to 27.1%
+  - trend total comp now targets about $1.25M in projection year 5 and $2.25M in projection year 8; actual accrued comp is lower in those rows because both years land on negative swing points
+  - restored the missing `Savings Projection!B29` output formula; `BC29` remains empty and no old $5M stress input was reintroduced
+- added `IC Switch Scenarios` sheet (session 7)
+  - separate visible sheet for switch-after-3/4/5-YOE at Jump with 2x/3x/4x IC quant cash-comp bump cases
+  - includes `$5M` / `$7M` all-cash and 50%-down house + immediate-retirement thresholds, scenario Y10 net worth, surplus / shortfall, and first crossing year through Y30
+  - shows gross walk-away `BK` separately and does not deduct it; buyout / exact forfeiture / noncompete tax timing remains out of scope
+  - first implementation used `MINIFS` for crossing years, which Excel cached as `#NAME?`; replaced it with visible helper first-crossing columns using `SUMIFS`, then recalculated and verified
+
+Open follow-ups for the next agent:
+- if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time
+- visually QA dashboard charts after the session-4 tranche-model changes — especially scenarios that reference bonus timing and year-over-year cash growth (CY2027 is noticeably lower than the old model)
+- if the user wants direct editing in the visible gross-comp column, redesign the UI rather than making the output column dual-purpose
+- consider whether `BK` Unvested Deferred Comp should surface on the Financial Dashboard as a dedicated "walk-away cost" KPI card. Currently it only lives inline on the Savings Projection sheet.

@@ -1,0 +1,277 @@
+# Progress Log
+
+## 2026-04-11 (session 7) — IC switch scenario sheet
+
+Context:
+- User wanted to revisit 3-5 YOE Jump job-switch scenarios in the workbook, with 2x-4x IC quant compensation bumps, while keeping the response and scenario work separate from the core model.
+
+Design:
+- Added a new visible sheet: `IC Switch Scenarios`.
+- The sheet has:
+  - assumptions section,
+  - `$5M` / `$7M` all-cash and 50%-down house + immediate-retirement thresholds,
+  - 9-row scenario summary for switch after 3/4/5 YOE and 2x/3x/4x bump,
+  - visible Y1-Y30 helper model for auditability.
+- The helper rebuilds the baseline IC cash-comp path from `Model Inputs`, applies the selected bump after the switch year, and then uses the existing tax tables, rent/living assumptions, retirement contributions, and base return.
+- Gross walk-away `BK` is shown separately and not deducted, because exact buyout / deferred comp forfeiture / noncompete tax timing is not modeled in this sheet.
+
+Implementation:
+- Added `IC Switch Scenarios` between `Scenario Lab` and `Tax Assumptions`.
+- Did not modify the core sheets' formulas.
+- Initial first-crossing formulas used `MINIFS`, but Excel cached those as `#NAME?` in this workbook context.
+- Replaced first-crossing logic with visible helper columns `Y:AB` that flag the first crossing year, then summary columns use `SUMIFS`, which verified cleanly.
+
+Verification:
+- Recalculated and saved through Excel via JXA, then closed Excel.
+- Verified with `openpyxl`:
+  - sheet is visible and all sheets remain visible,
+  - `IC Switch Scenarios` summary rows cache correctly,
+  - no `#NAME?` in first-crossing columns after the helper-column fix,
+  - no `~$Net Worth.xlsx` lock file remains.
+- Current base-home threshold values from the sheet:
+  - `$5M` all-cash: about `$14.0M`;
+  - `$5M` 50% down: about `$16.9M`;
+  - `$7M` all-cash: about `$17.3M`;
+  - `$7M` 50% down: about `$21.4M`.
+
+
+## 2026-04-11 (session 6) — IC quant median compensation calibration
+
+Context:
+- User reported updated IC quant path assumptions from conversations: median case is roughly $1.0M-$1.5M by Y5 and $1.5M-$3.0M by Y8, with much larger Y8 upside tails possible.
+- Existing workbook was a tranche-aware cash model. Compensation market quotes are better interpreted as annual total comp earned/accrued, not the delayed cash received after 50/25/25 deferral.
+
+Design:
+- Calibrated the pre-swing `AU` Trend Bonus path to the midpoint of those ranges: about $1.25M total trend comp in projection year 5 and about $2.25M total trend comp in projection year 8.
+- Preserved existing model semantics:
+  - `B` / `BB` remain cash gross comp outputs.
+  - `AY` remains FY bonus accrued.
+  - `BJ` remains bonus cash received.
+  - `BK` remains unvested deferred comp / walk-away cost.
+  - `BC` remains the manual gross-comp input path.
+- Left the existing 12% swing layer in place, so actual accrued totals in Y5/Y8 are below the midpoint trend targets because both rows land on negative swing points.
+
+Implementation:
+- Set `Model Inputs!B28` early bonus growth from 35.0% to 45.3%.
+- Set `Model Inputs!B29` later bonus growth from 22.0% to 27.1%.
+- Added comments on `Model Inputs!B28:B29` and updated `Model Inputs!J24` to document the IC median calibration and the distinction between accrued trend comp and cash received.
+- Restored the missing `Savings Projection!B29` output formula to `=IF(BB29="","",BB29)`. This does not change current outputs because `BC29` and `BB29` are blank, but it keeps future year-11 inputs propagating.
+
+Verification:
+- Recalculated and saved through Excel via JXA, then closed the workbook.
+- Verified refreshed cached values with `openpyxl`:
+  - `Model Inputs!B28 = 45.3%`; `B29 = 27.1%`.
+  - Y5 / CY2030: trend total comp $1.25M; accrued total comp $1.15M after negative swing; cash gross comp $954K.
+  - Y8 / CY2033: trend total comp $2.25M; accrued total comp $2.05M after negative swing; cash gross comp $1.87M.
+  - Y10 / CY2035: cash gross comp $2.60M; base total wealth $6.43M.
+  - `Savings Projection!B29` has the normal output formula; `BC29` remains empty.
+
+
+## 2026-04-10 (session 5) — Rent + living-cost inflation drivers
+
+Context:
+- User asked whether the current spend level (~$118–130K/yr) is reasonable given the earnings path. Spend itself is conservative (33–45% save rate), but the model held rent and living costs flat in nominal terms, which understated late-year spend. User picked option (a): add inflation drivers.
+
+Design:
+- Separate "real $" inputs from "nominal display" columns so user can edit in today's dollars and let the model compound.
+- New Model Inputs at `B35` (rent inflation, 3%) and `B36` (living-cost inflation, 3%), blue inputs with % format.
+- New Savings Projection columns `BL` (Rent real $) and `BM` (Living real $) holding the prior literals for rows 19–28 and the same `LOOKUP` carry-forward pattern for rows 29–58.
+- Rewrote `S` and `T` as pure display formulas: `=IF(C_r="Working", IF(BL_r="","", BL_r * (1+'Model Inputs'!$B$35)^(AN_r-1)), "")` and the parallel for `T`/`BM`/`B$36`.
+- Renamed `S18` → "Rent (nominal)", `T18` → "Other Living Costs (nominal)" to make the semantics explicit.
+
+Cross-sheet audit:
+- Grepped every sheet for `Savings Projection!S` / `!T` references. Only `Scenario Lab` reads them (J32:K58 for nominal rent/living × scenario multiplier). Leaving S/T as the inflated nominal columns means Scenario Lab automatically picks up inflated values — exactly what we want.
+
+Implementation:
+- Quit Excel via JXA, cleared any lock.
+- Cloned label/input styles from the existing comp rows.
+- Added inflation inputs + BL/BM columns + S/T rewrites via openpyxl in one pass.
+- Added cell comments on `B35`, `B36`, `BL18`, `BM18` explaining the real-vs-nominal convention.
+- Reopened in Excel, forced recalc, saved, closed.
+
+Verification (cached):
+| yr | BL real | BM real | S nom | T nom | Post-tax | Cash After | Save rate |
+|---|---|---|---|---|---|---|---|
+| 1 | $78K | $40K | $78.0K | $40.0K | $302.7K | $184.7K | 38.0% |
+| 5 | $78K | $50K | $87.8K | $56.3K | $487.7K | $343.7K | 40.2% |
+| 10 | $80K | $50K | $104.4K | $65.2K | $1,002.5K | $832.9K | 42.9% |
+
+Save rate in year 10 dropped from 44.9% → 42.9% (~2 pts), consistent with the expected drag from compounding rent/living at 3% over 10 years. Scenario Lab and Dashboard read downstream from S/T so they automatically benefit.
+
+
+
+## 2026-04-10 (session 4) — Tranche-aware 50/25/25 bonus model + walk-away readout
+
+Context:
+- User pointed out that the session-2 / session-3 "lump the entire FY bonus into the next calendar year" simplification did not actually reflect the 50/25/25 deferred schedule in the offer letter, and asked whether the "golden handcuffs" stacking effect was already visible. It wasn't.
+- User confirmed the FY2026 guarantee is pro-rated by 4/12 (not full $450K).
+- User asked for both: (a) a tranche-aware cash model that splits each FY bonus 75/25 across two calendar years, and (b) a year-end walk-away readout showing unvested deferred comp.
+
+Cycle 1: cross-sheet reference audit
+- Searched every sheet for formulas referencing `Savings Projection!AY/BB/B/AX/AU/AV/AW`.
+- Only `Savings Projection!B` is referenced externally (Financial Dashboard, Model Inputs, Scenario Lab — 370+ cells). Nothing reads AY / BB / AX directly off-sheet.
+- Conclusion: flipping AY from cash-basis to accrual-basis is safe as long as the B column continues to reflect cash gross comp via BB.
+
+Cycle 2: design
+- Accrual layer: repurpose AU / AV / AY to represent FY accrued bonus (what was earned in that FY).
+- Cash layer: new column BJ = 0.75 × AY(r-1) + 0.25 × AY(r-2), the 75/25 tranche sum.
+- Walk-away readout: new column BK = AY(r) + 0.25 × AY(r-1) — full just-finished FY accrual (nothing paid yet as of Dec 31) + 25% tail from prior FY (the 12-month Mar 15 tranche still ahead).
+- Rewire BB to use BJ instead of AY for the bonus component. Rewire BD (session-3 actuals) with the same 75/25 structure using BE overrides where present and AY fallback otherwise. Drop the session-3 `BE × stub_factor` multiplier since accruals in BE are now entered post-proration.
+
+Cycle 3: implementation
+- Quit Excel via JXA and cleared the `~$Net Worth.xlsx` lock.
+- Patched with openpyxl:
+  - Updated AU formula to produce AN=1 → stub × B$27, AN=2 → B$27, AN≥3 → early/late ramp.
+  - Updated AV swing suppression from AN≤3 to AN≤2.
+  - Simplified AY formula to pure accrual (dropped the BC-derived back-solve path).
+  - Repinned AX19 = 150000, AX20 = 450000, cleared AX21.
+  - Added BJ column with 75/25 tranche formula (row 19 = 0, row 20 = one-sided).
+  - Added BK column with year-end walk-away formula.
+  - Rewrote BB to gate on BJ (not AY) in the "any signal" check and to use BJ in the cash sum.
+  - Rewrote BD to use 75/25 tranche math, preserving the actuals override precedence.
+  - Renamed headers: AX18 = "FY Bonus Accrual Override", AY18 = "FY Bonus Accrued".
+  - Rewrote the AN5 help note to document the new model.
+  - Added cell comments on AY18 / BJ18 / BK18 explaining semantics.
+
+Cycle 4: verification
+- Reopened in Excel, forced recalc, saved.
+- Cached values matched expectations exactly:
+  - Row 19 (CY2026): B=550K, AY=150K, BJ=0, BK=150K
+  - Row 20 (CY2027): B=412.5K, AY=450K, BJ=112.5K, BK=487.5K
+  - Row 21 (CY2028): B=675K, AY=450K, BJ=375K, BK=562.5K
+  - Row 22 (CY2029): B=750K, AY=670,633 (AV swing fires), BJ=450K, BK=783K
+- Discovered pre-existing bug: B29 and B30 had no formula at all (likely leftover from session 1's literal `B29 = 5000000` stress-test that was never restored). Every other row in B19:B58 had `=IF(BBxx="","",BBxx)`. This meant BC29's $5M override was not propagating through the B column to the scenario lab / dashboard, even though BB29 held the right value.
+- Fixed by restoring B29 and B30 formulas with matching cell styles cloned from B28.
+- Re-verified: B29 = BB29 = 5,000,000; B30 = blank (no inputs).
+
+Cycle 5: docs
+- Updated `net-worth-workbook-handoff.md` with the session-4 tranche model, new verified cached values, and the B29/B30 gap fix.
+- Appended this entry to the progress log.
+- Updated todo.md to close the "FY2026 proration confirmation" question and the session-4 items.
+
+
+
+## 2026-04-09 (session 3) — Realized Comp (Actuals) input block
+
+Context:
+- User wants to pin realized compensation as fiscal years close (e.g. actual FY2027 bonus once known, then FY2028, etc.) while keeping the planning model running for future years.
+- Realized comp must follow the same deferred structure: an FY bonus earned in year N pays in calendar year N+1, with FY2026 pro-rated by (13 − start_month)/12 to match the existing stub logic.
+
+Cycle 1: design
+- Reviewed existing `Savings Projection` compensation schedule (AN:BC).
+- Chose to add a new actuals block at `BD:BI` without touching the existing AR/AX/BA pins or the BC stress-test override, so planning and actuals remain cleanly separated.
+- Precedence in the rewritten `BB` formula: BD (actuals) > BC (stress-test) > modeled (AT + AY + AZ + BA).
+- Component-level fallback inside BD: each of base, bonus, and other falls back to its modeled value when the corresponding actual is blank.
+
+Cycle 2: implementation
+- Quit Excel via JXA and removed the stale `~$Net Worth.xlsx` lock.
+- Patched with openpyxl:
+  - Added headers at BD18:BI18 matching the existing dark-navy banker style.
+  - Added blue input cells at BE:BI rows 19–30 with currency / general formats.
+  - Added computed BD formula per row, special-casing row 19 (AN=1, no prior FY bonus) to avoid dereferencing the header row.
+  - Rewrote BB19:BB30 to prefer BD when non-blank, else BC, else the original modeled sum.
+  - Added cell comments on BD18 / BE18 explaining the timing and precedence.
+  - Extended `AN5` help note to document the new block.
+  - Widened BD:BI columns for legibility.
+- Reopened in Excel, forced recalc, and saved to refresh cached values.
+
+Cycle 3: verification
+- Pre-state values match the session-2 handoff: BB19=550K, BB20=450K, BB21=750K, BB22=970,633, BC29=5M still intact.
+- Smoke test with BE19=600K and BF19=95K:
+  - BD19=BB19=545K (95K actual base + 450K default sign-on + 0 bonus in year 1)
+  - BD20=BB20=500K (300K modeled base + 600K × 4/12 stub-prorated FY2026 actual)
+  - BD21="" so BB21 fell through to the modeled pin of 750K
+- Cleared the test inputs and saved clean. BE19/BF19/BD19 all None in the final cached workbook.
+
+
+
+## 2026-04-09 (session 2) — Cash-basis bonus model
+
+Context:
+- User provided Jump Trading offer letter PDF at `~/Desktop/Offer Letters/Addendum`
+- Previous model used accrual basis: FY bonus booked in the year earned
+- Offer letter specifies deferred payment: 50% by March 15, 25% at 6 months, 25% at 12 months after FY end
+  → entire FY bonus arrives in the *following* calendar year (cash basis)
+
+Cycle 1: offer letter extraction
+- Opened PDF via Preview with computer-use
+- Confirmed key numbers: $300K base, $450K guaranteed annual bonus (FY2026–27), $450K sign-on (2026 only)
+- Confirmed deferred payment schedule requiring cash-basis model
+
+Cycle 2: bonus override pins for years 1–3
+- Set `AX19 = 0` (2026 stub: no bonus received that calendar year)
+- Set `AX20 = 150000` (2027: receives FY2026 pro-rated bonus; $450K × 4/12 ≈ $150K)
+- Set `AX21 = 450000` (2028: receives FY2027 full guaranteed bonus $450K)
+
+Cycle 3: AU Trend Bonus formula correction
+- Original formula used `(AN-2)` exponent, ramping from Year 2
+- Corrected to `(AN-3)` so discretionary ramp starts from Year 4 (2029), consistent with years 1–3 being pinned
+- Applied to rows 19–30
+
+Cycle 4: AV Swing suppression
+- Updated swing formula to return 0 when `AN <= 3`
+- Prevents fluctuation overlay on guaranteed/override years
+
+Cycle 5: label and note updates
+- `Model Inputs!A27`: updated label to reflect deferred-payment guarantee scope
+- `Model Inputs!J24`: updated comp description note to explain cash-basis model
+- `Savings Projection!AN5`: updated note to reference Jump Trading offer terms
+
+Cycle 6: save and verification
+- Saved through Excel (AutoSave active, Cmd+S sent while Excel was frontmost)
+- Verified visually: BB19=$550K, BB20=$450K, BB21=$750K, BB22=$970,633 ✓
+- Updated handoff docs
+
+
+
+## 2026-04-09 15:37:37 PDT
+
+Context:
+- workbook under active iteration at `/Users/benjaminshih/Desktop/Net Worth Planning/Net Worth.xlsx`
+- user reported that some cells still did not populate correctly when manually adding more years
+
+Cycle 1: propagation audit
+- inspected `Savings Projection`, `Model Inputs`, `Scenario Lab`, and dashboard references
+- found that later years propagated only through the dedicated override path, not through the visible gross-comp column
+- found that derived working years truncated on the first blank / `Retired` row
+- found that scenario affordability outputs mixed purchase-year and retirement-year indexing
+
+Cycle 2: compensation-path hardening
+- kept `Savings Projection!B:B` as output-only
+- standardized manual late-year gross input to `Savings Projection!BC:BC`
+- updated formula comments / labels so the intended edit surface is visible
+
+Cycle 3: working-year and late-row fixes
+- changed `Savings Projection!B12` to last-working-year logic
+- kept `Model Inputs!B19` and scenario YOE caps linked to that repaired count
+- made late working years carry forward nonblank rent and living-cost values
+
+Cycle 4: circular-reference correction
+- discovered that trying to infer direct manual edits from the visible gross-comp output column created circular references
+- removed that self-referential logic entirely
+- retained only the explicit manual-input path through `BC`
+
+Cycle 5: scenario affordability correction
+- changed retirement sustainability outputs to use retirement-year carry / draw metrics
+- kept purchase-close metrics indexed to purchase year
+- updated dashboard labels to reflect the distinction
+
+Cycle 6: independent cross-checks
+- ran two independent subagent audits
+- both confirmed the core issues:
+  - first-gap truncation
+  - unsafe direct-edit path in the visible output column
+  - purchase-year indexing leaking into retirement sustainability metrics
+
+Cycle 7: explicit gap test
+- created a temp workbook copy
+- kept year 12 blank
+- entered a year 13 gross-comp input
+- verified that:
+  - derived working years moved to 13
+  - scenario caps updated
+  - scenario year 13 remained `Working`
+
+Cycle 8: continuity package
+- created local handoff files in `Desktop/Net Worth Planning`
+- documented workbook state, lessons, and next steps for Claude or Codex continuation
