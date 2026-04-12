@@ -62,6 +62,9 @@ Done:
   - switch-after-N now means Jump years 1..N, two base-salary-only noncompete years, then new firm starts in N+3
   - IC switch bumps now anchor to switch-year base + FY bonus accrued, not later baseline cash gross comp
   - PM requested starts are delayed until after noncompete when needed; 5Y requested PM Y7 effectively starts Y8
+- cleaned up scenario sheet number formats (session 13)
+  - fixed Y15 summary dollar columns and helper year/YOE fields on `IC Switch Scenarios` and `PM After Switch`
+  - added a reusable all-sheet number-format audit rule to the global `spreadsheet` skill
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time

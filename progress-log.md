@@ -1,5 +1,21 @@
 # Progress Log
 
+## 2026-04-12 (session 13) - scenario sheet number-format cleanup
+
+Context:
+- User flagged that the new scenario sheets had formatting drift: some dollar outputs were still `General`, and some YOE/year fields had inherited currency-style formats.
+
+Implementation:
+- Audited number formats across all workbook sheets.
+- Corrected `IC Switch Scenarios` Y15 summary dollar columns and helper YOE/year columns.
+- Corrected `PM After Switch` Y15 summary dollar columns, summary YOE columns, and helper projection/calendar-year columns.
+- Updated the global `spreadsheet` skill to require an all-sheet number-format audit after formula or structural workbook edits.
+
+Verification:
+- Recalculated and saved through Excel via JXA, then closed Excel.
+- Verified no cached formula errors, all sheets visible, no Excel lock file, and `make validate` passes.
+- Verified the targeted scenario summary/helper ranges have zero format errors; `IC Switch Scenarios` and `PM After Switch` now have zero numeric cells left with `General` format.
+
 ## 2026-04-12 (session 12) - switch/noncompete timing correction
 
 Context:

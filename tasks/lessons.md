@@ -119,3 +119,14 @@ The scenario helper treated `Switch After YOE` as a simple formula breakpoint ra
 
 ### Prevention Rule
 For career-transition scenario sheets, model phase gates explicitly: baseline through the completed switch YOE, base-only noncompete for the specified duration, then apply the new-firm package anchored to the switch-year base plus accrued bonus. Keep helper notes clear when projection rows begin before the actual transition.
+
+---
+
+### Failure
+Scenario summary formulas calculated correctly but some newly added dollar columns kept `General` formatting, while some year/YOE fields inherited compact dollar formatting from neighboring financial columns.
+
+### Root Cause
+The workbook validation focused on formulas, cached values, and sheet visibility, but did not include a number-format audit after adding and rewiring summary/helper blocks.
+
+### Prevention Rule
+After spreadsheet formula or structural edits, audit number formats on all affected sheets before delivery. For financial models, explicitly verify currency-intent columns use dollar formats and year/YOE/counter columns use integer/text formats; cached formula correctness alone is not enough.

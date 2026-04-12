@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 12)
+Updated: 2026-04-12 (session 13)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -204,6 +204,12 @@ Editing constraints:
     - `PM After Switch` now delays PM comp until the later of requested PM start and first post-noncompete new-firm year; e.g. a 5Y switch with requested PM Y7 is effectively modeled as PM Y8.
     - Helper notes now explain why projection rows still begin at Y1/CY2026: they are needed to accumulate pre-switch wealth before the actual switch event.
 
+21. **Cleaned up scenario sheet number formats** (session 13):
+    - Fixed `IC Switch Scenarios` Y15 summary dollar columns and helper year/YOE columns.
+    - Fixed `PM After Switch` Y15 summary dollar columns, summary YOE columns, and helper projection/calendar-year columns.
+    - Verified no cached formula errors, all sheets visible, no Excel lock file, `make validate` passes, and targeted scenario formatting checks have zero errors.
+    - Updated the global `spreadsheet` skill with a reusable rule to audit all-sheet number formats after formula or structural workbook edits.
+
 ## Latest Debugging Pass
 
 The latest pass fixed the issues the user flagged about manual extension and stale scenario behavior.
@@ -234,6 +240,7 @@ Verified after the session-11 Y10/Y15 summary restore and save-through-Excel:
 
 - `IC Switch Scenarios` now stops at Y15, models the two-year base-only noncompete before the boosted package starts, anchors the bump to switch-year base + FY bonus accrued, caps post-Y8 IC comp around the visible `$3.5M +/- $0.5M` plateau, and shows both Y10 and Y15 summary blocks. Current cached examples: 3Y 2x Y10 liquid NW about `$6.90M` and Y15 about `$18.19M`; 3Y 3x Y10 about `$8.16M` and Y15 about `$19.89M`; 3Y 4x Y10 about `$9.43M` and Y15 about `$21.58M`; 5Y 4x Y10 about `$7.86M` and Y15 about `$19.48M`.
 - `PM After Switch` now stops at Y15, models the same two-year base-only noncompete before PM eligibility, and shows both Y10 and Y15 summary blocks. Current cached examples: 3Y -> PM Y7 Starter Y10 liquid NW about `$6.01M` and Y15 about `$12.27M`; 3Y -> PM Y7 Base Y10 about `$10.65M` and Y15 about `$24.45M`; 3Y -> PM Y7 Upside Y10 about `$23.38M` and Y15 about `$57.91M`; 3Y -> PM Y7 Tail Y10 about `$33.55M` and Y15 about `$84.61M`. For 5Y switch cases, requested PM Y7 and requested PM Y8 now intentionally match because both are delayed to the first post-noncompete year, Y8.
+- Session 13 format audit: the targeted scenario summary/helper checks have zero format errors; `IC Switch Scenarios` and `PM After Switch` have zero numeric cells left with `General` formatting. Remaining `General` numeric cells in older sheets are year/index helper fields, not currency outputs.
 
 Verified in Excel after cash-basis lump model (session 2, now superseded):
 - `BB19 = $550,000`, `BB20 = $450,000`, `BB21 = $750,000`, `BB22 = $970,633`.
