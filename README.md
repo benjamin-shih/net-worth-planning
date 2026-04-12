@@ -23,6 +23,7 @@ Before editing the workbook, read `AGENTS.md` and the continuity files listed th
 Run a lightweight repository check with:
 
 ```bash
+uv sync
 make validate
 ```
 

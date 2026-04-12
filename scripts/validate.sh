@@ -19,7 +19,7 @@ for path in "${required_files[@]}"; do
   fi
 done
 
-python3 - <<'PY'
+uv run python - <<'PY'
 from pathlib import Path
 from zipfile import BadZipFile, ZipFile
 

@@ -152,3 +152,36 @@ A workbook patch script failed before saving when adding data validation over a 
 
 ### Prevention Rule
 When applying one data validation rule to multiple disjoint ranges, split the range string and add each range to the validation object separately.
+
+---
+
+### Failure
+A workbook patch script generated invalid formulas for multi-letter Excel columns such as `AA` and `AC` during a normalized scenario-results pass.
+
+### Root Cause
+The helper function assumed a cell reference's first character was the entire column label, which only works for single-letter columns.
+
+### Prevention Rule
+When constructing formulas programmatically, parse coordinates with a spreadsheet-aware utility such as `openpyxl.utils.cell.coordinate_from_string` instead of slicing strings by character position.
+
+---
+
+### Failure
+Rerunning the dashboard enhancement script failed on read-only `MergedCell` placeholders after the first pass had created merged selector-section ranges.
+
+### Root Cause
+The rebuild loop cleared row/cell values before unmerging ranges owned by the prior run.
+
+### Prevention Rule
+For idempotent workbook patch scripts, unmerge any ranges that intersect the region being rebuilt before writing individual cells in that region.
+
+---
+
+### Failure
+The repository validator still used plain `python3` even after the spreadsheet workflow standard required UV-managed Python execution.
+
+### Root Cause
+The repo was originally a workbook-only repository and had no project-local Python metadata when the UV standard was tightened.
+
+### Prevention Rule
+When adding Python-based workbook tooling to this repo, maintain `pyproject.toml` / `uv.lock` and run validation or patch scripts through `uv run`, including shell validators that invoke small Python snippets.

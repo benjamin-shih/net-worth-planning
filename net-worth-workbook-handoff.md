@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 14)
+Updated: 2026-04-12 (session 15)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -18,6 +18,7 @@ Visible sheets:
 - `Scenario Lab`
 - `IC Switch Scenarios`
 - `PM After Switch`
+- `Scenario Results`
 - `Tax Assumptions`
 
 Key sheet roles:
@@ -26,6 +27,7 @@ Key sheet roles:
 - `Scenario Lab`: downside / base / upside scenario mechanics, retirement / house affordability outputs, and sensitivity logic.
 - `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump, modeling two base-salary-only noncompete years, then applying 2x/3x/4x boosted new-firm IC packages anchored to switch-year base + FY bonus accrued through Y8, followed by a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y10 plus Y15 liquid-net-worth readouts.
 - `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch, modeling two base-salary-only noncompete years before new-firm or PM comp can start, and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y10 plus Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks. Duplicate 5Y-requested-PM-Y7 rows are intentionally omitted because the noncompete makes the earliest effective PM start Y8.
+- `Scenario Results`: normalized presentation sheet added in session 15. It contains true Excel Table `tblScenarioResults` with one row per IC/PM scenario and Y10/Y15 horizon, plus a visible note listing higher-risk next-pass enhancements. It is a linked presentation layer, not a new calculation engine.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
 
@@ -217,6 +219,16 @@ Editing constraints:
     - Added data validation / dropdown guardrails to the main editable controls on `Model Inputs`, `Savings Projection`, `IC Switch Scenarios`, and `PM After Switch`.
     - Added auto filters to the IC and PM scenario summaries, tab colors, gridline-off polish, outline grouping for helper blocks, and notes marking the `Scenario Lab` lower frontier engine as live dashboard support rather than dead bloat.
     - Verified after Excel recalculation: no cached formula errors, all sheets visible, no lock file, no unsupported formula tokens, no hardcoded `2025+` formulas, and no formulas pointing at the removed PM helper tail.
+
+23. **Low-risk Excel presentation simplification pass** (session 15):
+    - Added project-local UV tooling (`pyproject.toml` / `uv.lock`) with `openpyxl`; `make validate` now routes its Python workbook-package check through `uv run python`.
+    - Converted the IC and PM summary ranges into true Excel Tables: `tblICSwitchSummary` (`IC Switch Scenarios!A21:Z30`) and `tblPMAfterSwitchSummary` (`PM After Switch!A21:AF41`).
+    - Added visible `Scenario Results` sheet with normalized `tblScenarioResults` (`A4:U62`), one row per scenario / horizon combination across the IC switch and PM-after-switch sheets.
+    - Added workbook defined name `ScenarioResultKeys` and a `Financial Dashboard!B103` dropdown selector that pulls one normalized scenario result into a compact dashboard readout.
+    - Added conditional formatting to the scenario summaries and normalized results table for positive/negative threshold deltas, shortfall/read text, and first-crossing failures.
+    - Added dashboard navigation links and backlinks from major sheets where a blank `A3` anchor was available.
+    - Deferred higher-risk enhancements to a next pass: PivotTables/slicers over `tblScenarioResults`, compact scenario trajectory sparklines, named formulas or `LET` / `LAMBDA` cleanup after a formula audit, and Power Query only if external data imports become necessary.
+    - Verification after Excel recalculation: all sheets visible, no cached formula errors, three table parts present in the `.xlsx`, `ScenarioResultKeys` present, dashboard selector resolving, no Excel lock file, `make validate` passes, and targeted new/changed currency-output ranges have zero `General` number-format issues.
 
 ## Latest Debugging Pass
 

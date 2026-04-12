@@ -70,6 +70,13 @@ Done:
   - fixed `Tax Assumptions!A1`
   - removed duplicate `5Y -> PM Y7` PM cases and helper blocks because noncompete makes them identical to effective `5Y -> PM Y8`
   - added validation/dropdown guardrails, auto filters, tab colors, gridline-off polish, helper outline grouping, and live sensitivity-engine notes
+- completed low-risk Excel presentation simplification pass (session 15)
+  - added project-local UV tooling (`pyproject.toml` / `uv.lock`) and changed `make validate` to run Python through `uv run`
+  - converted IC and PM summary ranges into true Excel Tables: `tblICSwitchSummary` and `tblPMAfterSwitchSummary`
+  - added a visible `Scenario Results` sheet with normalized `tblScenarioResults` rows for each IC/PM scenario and Y10/Y15 horizon
+  - added a Financial Dashboard scenario-result dropdown selector wired to the normalized results table
+  - added conditional formatting for threshold deltas, shortfall/read text, and first-crossing failures
+  - added dashboard navigation links and backlink anchors on major sheets
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time
@@ -77,3 +84,4 @@ Open follow-ups for the next agent:
 - visually QA dashboard charts after the session-4 tranche-model changes — especially scenarios that reference bonus timing and year-over-year cash growth (CY2027 is noticeably lower than the old model)
 - if the user wants direct editing in the visible gross-comp column, redesign the UI rather than making the output column dual-purpose
 - consider whether `BK` Unvested Deferred Comp should surface on the Financial Dashboard as a dedicated "walk-away cost" KPI card. Currently it only lives inline on the Savings Projection sheet.
+- next advanced Excel pass candidates: PivotTables and slicers over `tblScenarioResults`, compact scenario trajectory sparklines, and named formulas / `LET` / `LAMBDA` cleanup for repeated phase-gating logic after a separate formula audit. Defer Power Query until external data imports become part of the workbook.

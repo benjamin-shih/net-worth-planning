@@ -1,0 +1,8 @@
+[project]
+name = "net-worth-planning"
+version = "0.1.0"
+description = "Local tooling for the net worth planning workbook."
+requires-python = ">=3.12"
+dependencies = [
+    "openpyxl>=3.1.5",
+]

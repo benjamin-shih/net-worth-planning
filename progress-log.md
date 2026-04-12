@@ -414,3 +414,33 @@ Verification:
 - Verified all sheets remain visible, Excel has no open workbook, no temp lock file is present, and `make validate` passes.
 - Verified no cached formula-error literals remain in the workbook.
 - Current examples: IC 3Y 2x Y10 liquid NW about `$11.18M` and Y15 about `$23.92M`; IC 3Y 4x Y10 about `$18.27M` and Y15 about `$33.40M`; PM 3Y -> PM Y7 Starter Y10 about `$9.67M` and Y15 about `$17.17M`; PM 3Y -> PM Y7 Base Y10 about `$14.31M` and Y15 about `$29.35M`.
+
+## 2026-04-12 16:14:15 PDT - low-risk Excel presentation simplification
+
+Context:
+- User asked to implement the low-risk advanced Excel features first and note the higher-risk features for a later pass.
+
+Design:
+- Kept all sheets visible and left core scenario/helper formulas intact.
+- Treated true Excel Tables, a normalized scenario-results sheet, dashboard dropdown selector, conditional formatting, and navigation links as low-risk.
+- Deferred PivotTables/slicers, sparklines, Power Query, and formula abstraction work to a later pass because those are more dependent on native Excel automation or a deeper formula audit.
+
+Implementation:
+- Added project-local UV tooling (`pyproject.toml` / `uv.lock`) with `openpyxl` and updated `scripts/validate.sh` so validation uses `uv run python` instead of plain `python3`.
+- Added `tblICSwitchSummary` on `IC Switch Scenarios!A21:Z30`.
+- Added `tblPMAfterSwitchSummary` on `PM After Switch!A21:AF41`.
+- Added visible `Scenario Results` sheet with normalized `tblScenarioResults` at `A4:U62`, one row per scenario / horizon combination.
+- Added `ScenarioResultKeys` named range and a Financial Dashboard dropdown selector at `B103`.
+- Added conditional formatting for positive/negative threshold deltas, shortfall/read text, and first-crossing failures.
+- Added dashboard navigation links and sheet backlinks where a blank `A3` anchor was available.
+
+Corrections during implementation:
+- Fixed formula reference generation for multi-letter columns such as `AA` / `AC`.
+- Made the workbook patch script idempotent for the dashboard section by unmerging prior selector-section ranges before rewriting them.
+
+Verification:
+- Ran `uv sync`.
+- Ran `uv run python scripts/enhance_workbook_low_risk.py`.
+- Recalculated and saved through Microsoft Excel via JXA, then closed the workbook.
+- Ran `make validate`; validation passed.
+- Verified no hidden sheets, no cached formula errors, table parts present for the three new Excel Tables, `ScenarioResultKeys` present, dashboard selector resolving to the first normalized scenario result, and zero targeted `General` number-format issues in the new/changed presentation ranges.
