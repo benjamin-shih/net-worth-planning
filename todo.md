@@ -37,7 +37,7 @@ Done:
   - restored the missing `Savings Projection!B29` output formula; `BC29` remains empty and no old $5M stress input was reintroduced
 - added `IC Switch Scenarios` sheet (session 7)
   - separate visible sheet for switch-after-3/4/5-YOE at Jump with 2x/3x/4x IC quant cash-comp bump cases
-  - includes `$5M` / `$7M` all-cash and 50%-down house + immediate-retirement thresholds, scenario Y10 net worth, surplus / shortfall, and first crossing year through Y30
+  - includes `$5M` / `$7M` all-cash and 50%-down house + immediate-retirement thresholds, scenario Y15 liquid net worth, surplus / shortfall, and first crossing year through Y15
   - shows gross walk-away `BK` separately and does not deduct it; buyout / exact forfeiture / noncompete tax timing remains out of scope
   - first implementation used `MINIFS` for crossing years, which Excel cached as `#NAME?`; replaced it with visible helper first-crossing columns using `SUMIFS`, then recalculated and verified
 - added `PM After Switch` sheet (session 8)
@@ -45,6 +45,11 @@ Done:
   - uses a visible default 3x pre-PM IC bump, then Starter/Base/Upside/Tail PM cases based on net PnL x payout share plus base salary
   - treats PM payout as same-year gross cash and explicitly leaves PM deferral, platform cost allocation, drawdown, clawback, and seat-loss risk out of scope
   - fixed an initial control/table overlap before final Excel recalculation and verified no cached formula errors
+- capped `IC Switch Scenarios` and `PM After Switch` at Y15 (session 9)
+  - removed Y16-Y30 helper projections from both sheets
+  - added visible Y15 taxable liquid, retirement, and liquid net worth columns to both summary tables
+  - fixed the PM helper header so row 50 is a true header and data starts below it
+  - first-crossing formulas now return `Not by Y15` rather than searching beyond the requested horizon
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time

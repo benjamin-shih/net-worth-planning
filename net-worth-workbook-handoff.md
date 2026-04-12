@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 8)
+Updated: 2026-04-12 (session 9)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -24,8 +24,8 @@ Key sheet roles:
 - `Model Inputs`: single control surface for global return, spending, house, mortgage, and scenario parameters.
 - `Savings Projection`: canonical year-by-year base projection and compensation schedule.
 - `Scenario Lab`: downside / base / upside scenario mechanics, retirement / house affordability outputs, and sensitivity logic.
-- `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump and applying 2x/3x/4x IC quant cash-comp bumps, with `$5M` / `$7M` house + immediate-retirement threshold checks.
-- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch, with visible PM net-PnL / payout-share cases and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
+- `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump and applying 2x/3x/4x IC quant cash-comp bumps through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y15 liquid-net-worth readouts.
+- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
 
@@ -162,7 +162,7 @@ Editing constraints:
     - Separate visible sheet; no changes to the core projection mechanics.
     - Models switch after 3/4/5 YOE at Jump with 2x/3x/4x IC quant cash-comp bump from the following projection year.
     - Shows gross walk-away `BK` as a separate readout, not deducted from net worth. Exact buyout / forfeiture / noncompete tax timing is not modeled.
-    - Rebuilds the baseline IC cash-comp path from `Model Inputs`, applies the scenario bump, then uses the existing tax tables, rent/living assumptions, retirement contributions, and base return to project through Y30.
+    - Rebuilds the baseline IC cash-comp path from `Model Inputs`, applies the scenario bump, then uses the existing tax tables, rent/living assumptions, retirement contributions, and base return to project through Y15 only.
     - Computes `$5M` / `$7M` all-cash and 50%-down house + immediate-retirement thresholds from base home assumptions in `Model Inputs`.
     - Verified after Excel recalc: all first-crossing formulas calculate without `#NAME?`; sheet is visible; Excel lock file absent.
 
@@ -174,6 +174,14 @@ Editing constraints:
     - Reuses the workbook tax tables, rent/living inflation, retirement contributions, base return, and `$5M` / `$7M` home + retirement thresholds.
     - First implementation overlapped a new control cell with the threshold table; fixed by moving controls to `J15:J17` and PM cases to `L15:O18` before recalculation.
     - Verified after Excel recalc: sheet is visible, all sheets remain visible, controls cache correctly, and no cached formula errors appear on the new sheet.
+
+17. **Capped IC and PM switch sheets at Y15 and added liquid net worth readouts** (session 9):
+    - `IC Switch Scenarios` now uses a visible Y1-Y15 helper only; old Y16-Y30 helper rows were removed.
+    - `PM After Switch` now uses a real helper header at row 50 and Y1-Y15 helper rows only; old Y16-Y30 helper rows were removed.
+    - Both summaries now show Y15 gross comp, Y15 taxable liquid balance, Y15 retirement balance, and Y15 liquid net worth.
+    - Definition: Y15 liquid net worth = taxable balance + retirement balance, excluding home equity and unvested deferred comp. Components remain visible so taxable-only liquidity can be read directly.
+    - First-crossing formulas now return `Not by Y15` and do not inspect rows beyond Y15.
+    - Verified after Excel recalc: both sheets are visible, helper ranges stop at Y15, and no cached formula errors appear.
 
 ## Latest Debugging Pass
 
@@ -203,7 +211,8 @@ Verified after the session-6 IC quant calibration and save-through-Excel:
 - Projection year 8 / CY2033: trend total comp about `$2.25M`, accrued total comp about `$2.05M` after the negative swing, and cash gross comp about `$1.87M`.
 - Projection year 10 / CY2035: cash gross comp about `$2.60M`; total wealth at base return about `$6.43M`.
 
-- `PM After Switch` has 24 scenarios: first switch after 3/4/5 YOE, default 3x pre-PM IC bump, PM start in Y7/Y8, and Starter/Base/Upside/Tail PM economics. Current cached examples: 3Y -> PM Y7 Starter reaches about `$9.67M` Y10 wealth and first clears the `$5M` all-cash threshold in Y14 / 2039; 3Y -> PM Y7 Base reaches about `$14.31M` Y10 wealth; 3Y -> PM Y7 Upside reaches about `$27.04M` Y10 wealth and clears `$7M` 50% down by Y10.
+- `IC Switch Scenarios` now stops at Y15. Current cached Y15 liquid-net-worth examples: 3Y 2x about `$43.55M`; 3Y 3x about `$65.04M`; 3Y 4x about `$86.44M`.
+- `PM After Switch` now stops at Y15. Current cached Y15 liquid-net-worth examples: 3Y -> PM Y7 Starter about `$17.17M`; 3Y -> PM Y7 Base about `$29.35M`; 3Y -> PM Y7 Upside about `$62.80M`; 3Y -> PM Y7 Tail about `$89.51M`.
 
 Verified in Excel after cash-basis lump model (session 2, now superseded):
 - `BB19 = $550,000`, `BB20 = $450,000`, `BB21 = $750,000`, `BB22 = $970,633`.

@@ -76,3 +76,14 @@ The new PM sheet reused the threshold table's row range for both controls and th
 
 ### Prevention Rule
 When adding new scenario-sheet controls, reserve a non-overlapping visible control block first, then wire summary/helper formulas to that block and spot-check the control cell cached values before recalc.
+
+---
+
+### Failure
+A scenario helper table used the same row for helper headers and first data row, so the first helper data row overwrote the visible header.
+
+### Root Cause
+The helper-row start variable was set to the header row instead of the first data row below the header.
+
+### Prevention Rule
+When building scenario helper tables, reserve distinct constants for `header_row` and `data_start_row`, then inspect both the header row and the first data row before recalculation.

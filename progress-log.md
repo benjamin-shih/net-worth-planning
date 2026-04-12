@@ -307,3 +307,24 @@ Verification:
 - Recalculated and saved through Excel via JXA, then closed the workbook.
 - Verified with `openpyxl` that all sheets are visible, the Excel lock file is gone, no cached formula errors are present, and the new sheet caches summary values.
 - Current examples: 3Y -> PM Y7 Starter caches about `$9.67M` Y10 wealth; 3Y -> PM Y7 Base caches about `$14.31M`; 3Y -> PM Y7 Upside caches about `$27.04M`.
+
+
+## 2026-04-12 (session 9) - Y15 liquid net worth scenario cap
+
+Context:
+- User wanted both the IC switch and PM-after-switch sheets mapped through continued work in the switched role until Y15, with no projections beyond Y15 and a clear liquid net worth readout.
+
+Design:
+- Treated liquid net worth as taxable balance + retirement balance, excluding home equity and unvested deferred comp.
+- Kept the taxable and retirement components visible separately in the summary tables.
+- Limited first-crossing formulas to Y15 and changed non-crossing labels to `Not by Y15`.
+
+Implementation:
+- Rebuilt `IC Switch Scenarios` helper rows as Y1-Y15 only, ending at row 170.
+- Rebuilt `PM After Switch` helper rows as Y1-Y15 only, with row 50 as the actual helper header and data rows 51-410.
+- Replaced Y10 summary columns with Y15 gross comp, Y15 taxable liquid, Y15 retirement, and Y15 liquid net worth.
+
+Verification:
+- Recalculated and saved through Excel via JXA, then closed the workbook.
+- Verified with `openpyxl` that Excel has no workbook lock, both scenario sheets stop at Y15, all sheets remain visible, and no cached formula errors are present.
+- Current cached examples: IC 3Y 2x Y15 liquid net worth about `$43.55M`; IC 3Y 3x about `$65.04M`; PM 3Y -> PM Y7 Starter about `$17.17M`; PM 3Y -> PM Y7 Base about `$29.35M`.
