@@ -45,12 +45,14 @@ Workbook interpretation:
 The workbook now includes a visible `IC Switch Scenarios` sheet for revisiting whether the user should consider switching jobs after `3-5` YOE at Jump for a `2x-4x` IC quant pay bump.
 
 Sheet interpretation:
-- The bump applies to the ongoing baseline cash gross-comp path from the year after the switch and continues through Y15.
+- The bump applies to the ongoing baseline cash gross-comp path from the year after the switch through Y8.
+- After Y8, the IC switch path should not keep compounding. The current sheet uses visible plateau controls at `IC Switch Scenarios!J15:J17`: start after Y8, `$3.5M` midpoint, and `$0.5M` variability band. This is meant to reflect the user's view that staying as an IC likely stagnates around roughly `$3M-$4M` annual comp with variability.
 - PM carry / pod economics are intentionally excluded.
 - Gross walk-away `BK` is shown separately and not deducted, because exact buyout / deferred-comp forfeiture / noncompete tax timing is not modeled.
 - The sheet uses current workbook tax tables, rent/living assumptions, retirement contributions, and base return.
 - The sheet stops at Y15 and shows taxable balance, retirement balance, and liquid net worth for each scenario.
 - House + immediate-retirement thresholds are computed from base home assumptions in `Model Inputs`; current values are about `$14.0M` for a `$5M` all-cash house, `$16.9M` for `$5M` with 50% down, `$17.3M` for `$7M` all-cash, and `$21.4M` for `$7M` with 50% down.
+- Current cached Y15 gross comp is about `$3.93M` across the IC switch cases. Current cached Y15 liquid net worth examples: 3Y 2x about `$23.92M`, 3Y 3x about `$28.67M`, 3Y 4x about `$33.40M`, 5Y 2x about `$22.41M`, and 5Y 4x about `$28.95M`.
 
 
 ## PM After Switch Scenario Sheet
@@ -76,7 +78,7 @@ Scenario              Y15 liquid NW   First $5M cash     Read
 ```
 
 Interpretation:
-- PM is not automatically better than a strong IC switch. The Starter PM case can lag the 3x IC-switch path in some years because `$1.8M` PM gross comp is below some bumped IC cash-comp years.
+- PM is not automatically better than a strong IC switch, especially once the IC sheet uses a bounded post-Y8 plateau rather than indefinite compounding. The Starter PM case can lag stronger IC-switch cases in some years because `$1.8M` PM gross comp is below the post-switch IC plateau.
 - The PM path becomes decisive when attributable net PnL is closer to the Base/Upside cases.
 - Liquid net worth on these scenario sheets is taxable balance + retirement balance; home equity and unvested deferred comp are excluded, and taxable/retirement components are shown separately.
 

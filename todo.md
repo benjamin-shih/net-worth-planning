@@ -50,6 +50,10 @@ Done:
   - added visible Y15 taxable liquid, retirement, and liquid net worth columns to both summary tables
   - fixed the PM helper header so row 50 is a true header and data starts below it
   - first-crossing formulas now return `Not by Y15` rather than searching beyond the requested horizon
+- capped post-Y8 IC switch compensation growth (session 10)
+  - added visible `IC Switch Scenarios!J15:J17` plateau controls: Y8 start, $3.5M midpoint, $0.5M variability band
+  - rewired IC helper formulas so external IC bump cases apply through Y8 and then flatten around the bounded plateau through Y15
+  - corrected a stray `PM After Switch!H227` literal that caused cached `#VALUE!` spillover in one PM tail scenario after Excel recalculation
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time

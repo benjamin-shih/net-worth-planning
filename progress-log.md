@@ -328,3 +328,21 @@ Verification:
 - Recalculated and saved through Excel via JXA, then closed the workbook.
 - Verified with `openpyxl` that Excel has no workbook lock, both scenario sheets stop at Y15, all sheets remain visible, and no cached formula errors are present.
 - Current cached examples: IC 3Y 2x Y15 liquid net worth about `$43.55M`; IC 3Y 3x about `$65.04M`; PM 3Y -> PM Y7 Starter about `$17.17M`; PM 3Y -> PM Y7 Base about `$29.35M`.
+
+
+## 2026-04-12 (session 10) - post-Y8 IC plateau
+
+Context:
+- User clarified that staying on the IC path should not keep compounding past Y8; it is hard to get past roughly `$3M-$4M` per year as an IC, so post-Y8 IC switch cases should stagnate with some variability.
+
+Implementation:
+- Updated `IC Switch Scenarios` so helper cash-comp formulas use baseline comp before switch, 2x/3x/4x bumped comp through Y8, and a bounded post-Y8 plateau afterward.
+- Added visible controls at `IC Switch Scenarios!J15:J17`: plateau starts after Y8, steady-state midpoint `$3.5M`, and variability band `$0.5M`.
+- Updated IC sheet assumptions/comments to make the plateau visible in the workbook.
+- During cached-value validation, found a stray literal `e` in `PM After Switch!H227`; corrected it to `=$H$33`, matching adjacent helper rows, which removed cached `#VALUE!` values in that PM tail scenario.
+
+Verification:
+- Recalculated and saved through Excel via JXA, then closed the workbook.
+- Verified all sheets remain visible, Excel has no workbook open, no temp lock file is present, and `make validate` passes.
+- Verified no cached formula-error literals remain in the workbook.
+- Current IC switch cached Y15 cash comp is about `$3.93M` across cases. Current cached Y15 liquid net worth examples: 3Y 2x about `$23.92M`; 3Y 3x about `$28.67M`; 3Y 4x about `$33.40M`; 5Y 2x about `$22.41M`; 5Y 4x about `$28.95M`.

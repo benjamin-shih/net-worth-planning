@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 9)
+Updated: 2026-04-12 (session 10)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -24,7 +24,7 @@ Key sheet roles:
 - `Model Inputs`: single control surface for global return, spending, house, mortgage, and scenario parameters.
 - `Savings Projection`: canonical year-by-year base projection and compensation schedule.
 - `Scenario Lab`: downside / base / upside scenario mechanics, retirement / house affordability outputs, and sensitivity logic.
-- `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump and applying 2x/3x/4x IC quant cash-comp bumps through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y15 liquid-net-worth readouts.
+- `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump and applying 2x/3x/4x IC quant cash-comp bumps through Y8, then a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y15 liquid-net-worth readouts.
 - `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
@@ -44,6 +44,7 @@ Key sheet roles:
   - `AY` (renamed **FY Bonus Accrued**): pure accrual — `AX override → AU × (1+swing)`. The old BC-derived back-solve path is removed.
   - `AX` pins (session 4): `AX19 = 150000` (FY2026 accrued prorated), `AX20 = 450000` (FY2027 full guarantee). `AX21` cleared; trend formula drives FY2028+.
   - IC quant median calibration (session 6): `Model Inputs!B28 = 45.3%` early bonus growth and `Model Inputs!B29 = 27.1%` later bonus growth. These target pre-swing trend total comp of about `$1.25M` in projection year 5 and `$2.25M` in projection year 8, based on the user's updated IC median ranges (`$1.0M-$1.5M` by Y5 and `$1.5M-$3.0M` by Y8). Column `B` is still cash received, so it lags these accrued/trend targets under the 50/25/25 deferral schedule.
+  - IC switch scenarios now plateau after Y8 rather than scaling the external IC bump indefinitely. `IC Switch Scenarios!J15:J17` visibly control the cap: plateau starts after Y8, steady-state midpoint `$3.5M`, variability band `$0.5M`. With the current swing phase this produces about `$3.93M` Y15 cash comp across the IC switch summary cases.
 - Cash layer (new column `BJ`, fed into `BB`):
   - `BJ` **Bonus Cash Received** = `0.75 × AY_{r-1} + 0.25 × AY_{r-2}`, with zero terms for rows before 19.
   - `BJ19 = 0` (no FY has ended before CY2026). `BJ20 = 0.75 × AY19`.
@@ -183,6 +184,13 @@ Editing constraints:
     - First-crossing formulas now return `Not by Y15` and do not inspect rows beyond Y15.
     - Verified after Excel recalc: both sheets are visible, helper ranges stop at Y15, and no cached formula errors appear.
 
+18. **Capped post-Y8 IC switch comp growth** (session 10):
+    - `IC Switch Scenarios` no longer compounds the 2x/3x/4x external IC bump past Y8.
+    - Added visible plateau controls at `J15:J17`: start after Y8, `$3.5M` midpoint, and `$0.5M` variability band.
+    - Helper formulas now use baseline cash comp before the switch, bumped cash comp through Y8, and the bounded plateau after Y8.
+    - Corrected a stray literal `e` in `PM After Switch!H227` to restore the intended `=$H$33` helper reference; this removed cached `#VALUE!` spillover in that one PM tail scenario.
+    - Verified after Excel recalc: all sheets are visible, Excel has no open workbook, no lock file is present, `make validate` passes, and no cached formula errors appear.
+
 ## Latest Debugging Pass
 
 The latest pass fixed the issues the user flagged about manual extension and stale scenario behavior.
@@ -203,7 +211,7 @@ Current resolution:
 
 ## Current Verified State
 
-Verified after the session-6 IC quant calibration and save-through-Excel:
+Verified after the session-10 IC plateau update and save-through-Excel:
 - `Model Inputs!B28 = 45.3%`; `Model Inputs!B29 = 27.1%`.
 - `Savings Projection!B12 = 10`; `Model Inputs!B19 = 10`; `Model Inputs!F11:H11 = 12 / 10 / 9`.
 - `Savings Projection!BC29` is empty. `Savings Projection!B29` now has the normal output formula `=IF(BB29="","",BB29)` and currently evaluates blank because year 11 is retired.
@@ -211,7 +219,7 @@ Verified after the session-6 IC quant calibration and save-through-Excel:
 - Projection year 8 / CY2033: trend total comp about `$2.25M`, accrued total comp about `$2.05M` after the negative swing, and cash gross comp about `$1.87M`.
 - Projection year 10 / CY2035: cash gross comp about `$2.60M`; total wealth at base return about `$6.43M`.
 
-- `IC Switch Scenarios` now stops at Y15. Current cached Y15 liquid-net-worth examples: 3Y 2x about `$43.55M`; 3Y 3x about `$65.04M`; 3Y 4x about `$86.44M`.
+- `IC Switch Scenarios` now stops at Y15 and caps post-Y8 IC comp around the visible `$3.5M +/- $0.5M` plateau. Current cached Y15 gross comp is about `$3.93M` across the IC switch cases. Current cached Y15 liquid-net-worth examples: 3Y 2x about `$23.92M`; 3Y 3x about `$28.67M`; 3Y 4x about `$33.40M`; 5Y 2x about `$22.41M`; 5Y 4x about `$28.95M`.
 - `PM After Switch` now stops at Y15. Current cached Y15 liquid-net-worth examples: 3Y -> PM Y7 Starter about `$17.17M`; 3Y -> PM Y7 Base about `$29.35M`; 3Y -> PM Y7 Upside about `$62.80M`; 3Y -> PM Y7 Tail about `$89.51M`.
 
 Verified in Excel after cash-basis lump model (session 2, now superseded):

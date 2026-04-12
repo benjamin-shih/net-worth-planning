@@ -87,3 +87,14 @@ The helper-row start variable was set to the header row instead of the first dat
 
 ### Prevention Rule
 When building scenario helper tables, reserve distinct constants for `header_row` and `data_start_row`, then inspect both the header row and the first data row before recalculation.
+
+---
+
+### Failure
+A single stray literal in a scenario helper row caused cached `#VALUE!` errors to spill into a PM summary row after Excel recalculation.
+
+### Root Cause
+`PM After Switch!H227` contained the text `e` where adjacent helper rows used a formula reference to the summary input cell.
+
+### Prevention Rule
+After Excel recalculation, scan cached workbook values for formula-error literals across all sheets, not just the sheet being edited. If errors appear in a helper block, compare the same column in adjacent rows before assuming the summary formula is the source.
