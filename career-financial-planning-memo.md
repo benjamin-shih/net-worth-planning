@@ -50,9 +50,9 @@ Sheet interpretation:
 - PM carry / pod economics are intentionally excluded.
 - Gross walk-away `BK` is shown separately and not deducted, because exact buyout / deferred-comp forfeiture / noncompete tax timing is not modeled.
 - The sheet uses current workbook tax tables, rent/living assumptions, retirement contributions, and base return.
-- The sheet stops at Y15 and shows taxable balance, retirement balance, and liquid net worth for each scenario.
+- The sheet stops at Y15 and shows both Y10 and Y15 taxable balance, retirement balance, and liquid net worth for each scenario.
 - House + immediate-retirement thresholds are computed from base home assumptions in `Model Inputs`; current values are about `$14.0M` for a `$5M` all-cash house, `$16.9M` for `$5M` with 50% down, `$17.3M` for `$7M` all-cash, and `$21.4M` for `$7M` with 50% down.
-- Current cached Y15 gross comp is about `$3.93M` across the IC switch cases. Current cached Y15 liquid net worth examples: 3Y 2x about `$23.92M`, 3Y 3x about `$28.67M`, 3Y 4x about `$33.40M`, 5Y 2x about `$22.41M`, and 5Y 4x about `$28.95M`.
+- Current cached Y10/Y15 liquid net worth examples: 3Y 2x about `$11.18M` / `$23.92M`, 3Y 3x about `$14.73M` / `$28.67M`, 3Y 4x about `$18.27M` / `$33.40M`, and 5Y 4x about `$14.94M` / `$28.95M`.
 
 
 ## PM After Switch Scenario Sheet
@@ -69,12 +69,12 @@ Sheet interpretation:
 Current cached examples after Excel recalculation, capped at Y15:
 
 ```text
-Scenario              Y15 liquid NW   First $5M cash     Read
-------------------    -------------   ---------------    --------------------------
-3Y -> PM Y7 Starter   ~$17.17M        Y14 / 2039         clears $5M 50% down by Y15
-3Y -> PM Y7 Base      ~$29.35M        Y10 / 2035         clears $7M 50% down by Y15
-3Y -> PM Y7 Upside    ~$62.80M        Y8 / 2033          clears $7M 50% down by Y15
-3Y -> PM Y7 Tail      ~$89.51M        Y8 / 2033          clears $7M 50% down by Y15
+Scenario              Y10 liquid NW   Y15 liquid NW   First $5M cash     Read
+------------------    -------------   -------------   ---------------    --------------------------
+3Y -> PM Y7 Starter   ~$9.67M         ~$17.17M        Y14 / 2039         clears $5M 50% down by Y15
+3Y -> PM Y7 Base      ~$14.31M        ~$29.35M        Y10 / 2035         clears $7M 50% down by Y15
+3Y -> PM Y7 Upside    ~$27.04M        ~$62.80M        Y8 / 2033          clears $7M 50% down by Y15
+3Y -> PM Y7 Tail      ~$37.21M        ~$89.51M        Y8 / 2033          clears $7M 50% down by Y15
 ```
 
 Interpretation:

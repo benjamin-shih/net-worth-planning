@@ -54,6 +54,10 @@ Done:
   - added visible `IC Switch Scenarios!J15:J17` plateau controls: Y8 start, $3.5M midpoint, $0.5M variability band
   - rewired IC helper formulas so external IC bump cases apply through Y8 and then flatten around the bounded plateau through Y15
   - corrected a stray `PM After Switch!H227` literal that caused cached `#VALUE!` spillover in one PM tail scenario after Excel recalculation
+- restored Y10 scenario summary readouts while keeping Y15 (session 11)
+  - `IC Switch Scenarios` now shows Y10 and Y15 cash comp, taxable liquid, retirement, liquid net worth, threshold deltas, and read columns
+  - `PM After Switch` now shows the same Y10 and Y15 summary blocks
+  - first-crossing columns remain capped at Y15
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time

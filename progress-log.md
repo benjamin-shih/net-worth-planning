@@ -346,3 +346,21 @@ Verification:
 - Verified all sheets remain visible, Excel has no workbook open, no temp lock file is present, and `make validate` passes.
 - Verified no cached formula-error literals remain in the workbook.
 - Current IC switch cached Y15 cash comp is about `$3.93M` across cases. Current cached Y15 liquid net worth examples: 3Y 2x about `$23.92M`; 3Y 3x about `$28.67M`; 3Y 4x about `$33.40M`; 5Y 2x about `$22.41M`; 5Y 4x about `$28.95M`.
+
+
+## 2026-04-12 (session 11) - restore Y10 summary alongside Y15
+
+Context:
+- User clarified that adding Y15 should not replace the original Y10 net-worth/statistics readouts.
+
+Implementation:
+- Updated `IC Switch Scenarios` summary rows to include Y10 cash comp, taxable liquid, retirement, liquid net worth, threshold deltas, and Y10 read text, followed by the Y15 version of those same readouts.
+- Updated `PM After Switch` summary rows with the same Y10 and Y15 structure.
+- Kept helper rows capped at Y15 and kept first-crossing columns capped at Y15.
+- Updated sheet notes so future edits understand the summaries are intentionally dual-horizon.
+
+Verification:
+- Recalculated and saved through Excel via JXA, then closed the workbook.
+- Verified all sheets remain visible, Excel has no open workbook, no temp lock file is present, and `make validate` passes.
+- Verified no cached formula-error literals remain in the workbook.
+- Current examples: IC 3Y 2x Y10 liquid NW about `$11.18M` and Y15 about `$23.92M`; IC 3Y 4x Y10 about `$18.27M` and Y15 about `$33.40M`; PM 3Y -> PM Y7 Starter Y10 about `$9.67M` and Y15 about `$17.17M`; PM 3Y -> PM Y7 Base Y10 about `$14.31M` and Y15 about `$29.35M`.

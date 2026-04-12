@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 10)
+Updated: 2026-04-12 (session 11)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -24,8 +24,8 @@ Key sheet roles:
 - `Model Inputs`: single control surface for global return, spending, house, mortgage, and scenario parameters.
 - `Savings Projection`: canonical year-by-year base projection and compensation schedule.
 - `Scenario Lab`: downside / base / upside scenario mechanics, retirement / house affordability outputs, and sensitivity logic.
-- `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump and applying 2x/3x/4x IC quant cash-comp bumps through Y8, then a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y15 liquid-net-worth readouts.
-- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
+- `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump and applying 2x/3x/4x IC quant cash-comp bumps through Y8, then a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y10 plus Y15 liquid-net-worth readouts.
+- `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y10 plus Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
 
@@ -191,6 +191,13 @@ Editing constraints:
     - Corrected a stray literal `e` in `PM After Switch!H227` to restore the intended `=$H$33` helper reference; this removed cached `#VALUE!` spillover in that one PM tail scenario.
     - Verified after Excel recalc: all sheets are visible, Excel has no open workbook, no lock file is present, `make validate` passes, and no cached formula errors appear.
 
+19. **Restored Y10 scenario summary readouts while keeping Y15** (session 11):
+    - `IC Switch Scenarios` now shows both Y10 and Y15 summary blocks: cash comp, taxable liquid balance, retirement balance, liquid net worth, threshold deltas, and read text.
+    - `PM After Switch` now shows both Y10 and Y15 summary blocks with the same structure.
+    - First-crossing columns remain capped at Y15 and still return `Not by Y15` where appropriate.
+    - Helper rows remain capped at Y15; this change is summary layout only.
+    - Verified after Excel recalc: all sheets are visible, Excel has no open workbook, no lock file is present, `make validate` passes, and no cached formula errors appear.
+
 ## Latest Debugging Pass
 
 The latest pass fixed the issues the user flagged about manual extension and stale scenario behavior.
@@ -211,7 +218,7 @@ Current resolution:
 
 ## Current Verified State
 
-Verified after the session-10 IC plateau update and save-through-Excel:
+Verified after the session-11 Y10/Y15 summary restore and save-through-Excel:
 - `Model Inputs!B28 = 45.3%`; `Model Inputs!B29 = 27.1%`.
 - `Savings Projection!B12 = 10`; `Model Inputs!B19 = 10`; `Model Inputs!F11:H11 = 12 / 10 / 9`.
 - `Savings Projection!BC29` is empty. `Savings Projection!B29` now has the normal output formula `=IF(BB29="","",BB29)` and currently evaluates blank because year 11 is retired.
@@ -219,8 +226,8 @@ Verified after the session-10 IC plateau update and save-through-Excel:
 - Projection year 8 / CY2033: trend total comp about `$2.25M`, accrued total comp about `$2.05M` after the negative swing, and cash gross comp about `$1.87M`.
 - Projection year 10 / CY2035: cash gross comp about `$2.60M`; total wealth at base return about `$6.43M`.
 
-- `IC Switch Scenarios` now stops at Y15 and caps post-Y8 IC comp around the visible `$3.5M +/- $0.5M` plateau. Current cached Y15 gross comp is about `$3.93M` across the IC switch cases. Current cached Y15 liquid-net-worth examples: 3Y 2x about `$23.92M`; 3Y 3x about `$28.67M`; 3Y 4x about `$33.40M`; 5Y 2x about `$22.41M`; 5Y 4x about `$28.95M`.
-- `PM After Switch` now stops at Y15. Current cached Y15 liquid-net-worth examples: 3Y -> PM Y7 Starter about `$17.17M`; 3Y -> PM Y7 Base about `$29.35M`; 3Y -> PM Y7 Upside about `$62.80M`; 3Y -> PM Y7 Tail about `$89.51M`.
+- `IC Switch Scenarios` now stops at Y15, caps post-Y8 IC comp around the visible `$3.5M +/- $0.5M` plateau, and shows both Y10 and Y15 summary blocks. Current cached examples: 3Y 2x Y10 liquid NW about `$11.18M` and Y15 liquid NW about `$23.92M`; 3Y 3x Y10 about `$14.73M` and Y15 about `$28.67M`; 3Y 4x Y10 about `$18.27M` and Y15 about `$33.40M`; 5Y 4x Y10 about `$14.94M` and Y15 about `$28.95M`.
+- `PM After Switch` now stops at Y15 and shows both Y10 and Y15 summary blocks. Current cached examples: 3Y -> PM Y7 Starter Y10 liquid NW about `$9.67M` and Y15 about `$17.17M`; 3Y -> PM Y7 Base Y10 about `$14.31M` and Y15 about `$29.35M`; 3Y -> PM Y7 Upside Y10 about `$27.04M` and Y15 about `$62.80M`; 3Y -> PM Y7 Tail Y10 about `$37.21M` and Y15 about `$89.51M`.
 
 Verified in Excel after cash-basis lump model (session 2, now superseded):
 - `BB19 = $550,000`, `BB20 = $450,000`, `BB21 = $750,000`, `BB22 = $970,633`.

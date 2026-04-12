@@ -98,3 +98,14 @@ A single stray literal in a scenario helper row caused cached `#VALUE!` errors t
 
 ### Prevention Rule
 After Excel recalculation, scan cached workbook values for formula-error literals across all sheets, not just the sheet being edited. If errors appear in a helper block, compare the same column in adjacent rows before assuming the summary formula is the source.
+
+---
+
+### Failure
+Adding a Y15 summary block replaced the existing Y10 scenario readouts instead of preserving them.
+
+### Root Cause
+The summary-table rewrite treated Y15 as a replacement horizon rather than an additive comparison horizon, even though the user still wanted the Y10 decision snapshot.
+
+### Prevention Rule
+When adding a new planning horizon to a scenario sheet, preserve existing horizon readouts unless the user explicitly asks to remove them. Add the new horizon as a separate labeled block and keep helper-range caps independent from summary-display choices.
