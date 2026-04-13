@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import xml.etree.ElementTree as ET
@@ -20,6 +21,11 @@ from enhance_workbook_low_risk import (
     NAVY,
     PURPLE,
     SCENARIO_RESULTS,
+    TARGET_5M_50_DOWN,
+    TARGET_5M_ALL_CASH,
+    TARGET_7M_50_DOWN,
+    TARGET_7M_ALL_CASH,
+    TARGET_STATUS,
     TEAL,
     WHITE,
     WORKBOOK,
@@ -289,6 +295,8 @@ def configure_analysis_formula_block(ws, result_last_row: int) -> None:
     del result_last_row
     ws["K8"] = '=IFERROR(MATCH($K$7,tblScenarioResults[Result Key],0),"")'
     ws["K10"] = '=IFERROR(MATCH($K$9,tblScenarioResults[Result Key],0),"")'
+    ws["K11"] = '="Stay at Jump | Base | "&$G$5'
+    ws["K12"] = '=IFERROR(MATCH($K$11,tblScenarioResults[Result Key],0),"")'
 
     column_map = {
         14: "Path",
@@ -298,19 +306,25 @@ def configure_analysis_formula_block(ws, result_last_row: int) -> None:
         18: "Taxable Liquid",
         19: "Retirement",
         20: "Liquid Net Worth",
-        21: "vs $5M Cash",
-        22: "vs $5M 50%",
-        23: "vs $7M Cash",
-        24: "vs $7M 50%",
+        21: TARGET_5M_ALL_CASH,
+        22: TARGET_5M_50_DOWN,
+        23: TARGET_7M_ALL_CASH,
+        24: TARGET_7M_50_DOWN,
         25: "First $5M Cash",
         26: "First $5M 50%",
         27: "First $7M Cash",
         28: "First $7M 50%",
-        29: "Read",
+        29: TARGET_STATUS,
     }
     for row, column_name in column_map.items():
         ws[f"B{row}"] = f'=IFERROR(INDEX(tblScenarioResults[{column_name}],$K$8),"")'
         ws[f"C{row}"] = f'=IFERROR(INDEX(tblScenarioResults[{column_name}],$K$10),"")'
+        ws[f"D{row}"] = f'=IFERROR(INDEX(tblScenarioResults[{column_name}],$K$12),"")'
+
+    for row in range(17, 29):
+        ws[f"E{row}"] = f'=IF(AND(ISNUMBER(B{row}),ISNUMBER(C{row})),B{row}-C{row},"")'
+        ws[f"F{row}"] = f'=IF(AND(ISNUMBER(B{row}),ISNUMBER(D{row})),B{row}-D{row},"")'
+        ws[f"G{row}"] = f'=IF(AND(ISNUMBER(C{row}),ISNUMBER(D{row})),C{row}-D{row},"")'
 
     for row in range(34, 37):
         for col in ("B", "C", "D"):
@@ -345,9 +359,9 @@ def style_analysis_sheet(ws, result_last_row: int) -> None:
         "B": 28,
         "C": 16,
         "D": 16,
-        "E": 3,
-        "F": 18,
-        "G": 20,
+        "E": 16,
+        "F": 16,
+        "G": 16,
         "H": 3,
         "I": 18,
         "J": 20,
@@ -377,10 +391,10 @@ def style_analysis_sheet(ws, result_last_row: int) -> None:
     ws.row_dimensions[1].height = 26
     ws.row_dimensions[2].height = 36
     ws.row_dimensions[3].height = 20
-    for row in range(4, 11):
+    for row in range(4, 13):
         ws.row_dimensions[row].height = 22
     for row in range(12, 30):
-        ws.row_dimensions[row].height = 20
+        ws.row_dimensions[row].height = 26
     for row in range(32, 39):
         ws.row_dimensions[row].height = 20
     ws.row_dimensions[40].height = 20
@@ -388,8 +402,8 @@ def style_analysis_sheet(ws, result_last_row: int) -> None:
     style_cells(ws, "A1:P1", fill=NAVY, font_color=WHITE, bold=True, size=15)
     style_cells(ws, "A2:P2", fill=TEAL, font_color=TEXT)
     style_cells(ws, "A4:G4", fill=NAVY, font_color=WHITE, bold=True, h_align="center")
-    style_cells(ws, "A12:D12", fill=NAVY, font_color=WHITE, bold=True, h_align="center")
-    style_cells(ws, "A13:D13", fill=NAVY, font_color=WHITE, bold=True, h_align="center")
+    style_cells(ws, "A12:G12", fill=NAVY, font_color=WHITE, bold=True, h_align="center")
+    style_cells(ws, "A13:G13", fill=NAVY, font_color=WHITE, bold=True, h_align="center")
     style_cells(ws, "A32:D32", fill=NAVY, font_color=WHITE, bold=True, h_align="center")
     style_cells(ws, "J32:N32", fill=NAVY, font_color=WHITE, bold=True, h_align="center")
     style_cells(ws, "B33:D33", fill=NAVY, font_color=WHITE, bold=True, h_align="center")
@@ -398,7 +412,7 @@ def style_analysis_sheet(ws, result_last_row: int) -> None:
     style_cells(ws, "A14:A29", fill=GRAY, font_color=TEXT, bold=True)
     style_cells(ws, "A34:A36", fill=GRAY, font_color=TEXT, bold=True)
     style_cells(ws, "J34:J38", fill=GRAY, font_color=TEXT, bold=True)
-    style_cells(ws, "J4:N10", fill=NOTE, font_color=TEXT)
+    style_cells(ws, "J4:N12", fill=NOTE, font_color=TEXT)
 
     set_link(ws, "A3", "Dashboard", "Financial Dashboard")
     set_link(ws, "C3", "Scenario Results", SCENARIO_RESULTS)
@@ -416,11 +430,13 @@ def style_analysis_sheet(ws, result_last_row: int) -> None:
 
 def liquid_series_formula(row: int, year_offset: int) -> str:
     return (
-        f'=IF($B{row}="IC Switch",'
+        f'=IF($B{row}="Stay at Jump",'
+        f"INDEX('Savings Projection'!$AI$19:$AI$33,{year_offset + 1}),"
+        f'IF($B{row}="IC Switch",'
         f'IFERROR(INDEX(\'{IC_SHEET}\'!$X${IC_HELPER_FIRST_ROW}:$X${IC_HELPER_LAST_ROW},'
         f'MATCH($C{row},\'{IC_SHEET}\'!$A${IC_HELPER_FIRST_ROW}:$A${IC_HELPER_LAST_ROW},0)+{year_offset}),""),'
         f'IFERROR(INDEX(\'{PM_SHEET}\'!$AF${PM_HELPER_FIRST_ROW}:$AF${PM_HELPER_LAST_ROW},'
-        f'MATCH($C{row},\'{PM_SHEET}\'!$A${PM_HELPER_FIRST_ROW}:$A${PM_HELPER_LAST_ROW},0)+{year_offset}),""))'
+        f'MATCH($C{row},\'{PM_SHEET}\'!$A${PM_HELPER_FIRST_ROW}:$A${PM_HELPER_LAST_ROW},0)+{year_offset}),"")))'
     )
 
 
@@ -489,6 +505,10 @@ def build_pivot_lab_sheet(wb) -> None:
 
     for col, width in {"A": 24, "B": 18, "C": 18, "D": 18, "E": 18, "F": 18, "G": 18}.items():
         ws.column_dimensions[col].width = width
+    ws.column_dimensions["C"].hidden = True
+    ws.column_dimensions["E"].hidden = True
+    ws.row_dimensions[6].hidden = True
+    ws.row_dimensions[7].hidden = True
 
     set_section_band(ws, "A1:G1", "Scenario Pivot Lab", NAVY)
     safe_merge(ws, "A2:G2")
@@ -504,14 +524,18 @@ def build_pivot_lab_sheet(wb) -> None:
     set_link(ws, "C3", "Scenario Results", SCENARIO_RESULTS)
     set_link(ws, "E3", "Dashboard", "Financial Dashboard")
 
+    ws["A4"] = "Visible columns focus on liquid net worth by path, scenario, and horizon."
+    ws["A4"].font = Font(name="Aptos", color=TEXT, size=10)
+    ws["A4"].alignment = Alignment(horizontal="left", vertical="center")
+    ws["D4"] = "Y10"
+    ws["D4"].font = Font(name="Aptos", color=TEXT, bold=True, size=10)
+    ws["F4"] = "Y15"
+    ws["F4"].font = Font(name="Aptos", color=TEXT, bold=True, size=10)
     set_section_band(ws, "A5:G5", "Pivot Output", PURPLE)
     ws.row_dimensions[1].height = 26
     ws.row_dimensions[2].height = 34
     for row in range(5, 41):
         ws.row_dimensions[row].height = 20
-    if not ws["A6"].value:
-        ws["A6"] = "Native Excel PivotTable output starts below."
-        ws["A6"].alignment = Alignment(horizontal="left", vertical="center")
 
 
 def reorder_sheets(wb) -> None:
@@ -585,10 +609,19 @@ def restore_sheet_sparklines(source_workbook: Path, target_workbook: Path, sheet
     rebuilt.replace(target_workbook)
 
 
+def resolve_native_feature_source() -> Path:
+    source = os.environ.get("NET_WORTH_NATIVE_FEATURE_SOURCE")
+    if not source:
+        return WORKBOOK
+
+    source_path = Path(source).expanduser().resolve()
+    if not source_path.exists():
+        raise FileNotFoundError(f"Native feature source workbook not found: {source_path}")
+    return source_path
+
+
 def main() -> None:
-    backup_path = Path("tmp/spreadsheets/Net Worth.before-presentation-pass.xlsx")
-    backup_path.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(WORKBOOK, backup_path)
+    native_feature_source = resolve_native_feature_source()
 
     wb = load_workbook(WORKBOOK)
     result_last_row = get_result_last_row(wb)
@@ -616,7 +649,7 @@ def main() -> None:
     with TemporaryDirectory() as tmp_dir:
         tmp_workbook = Path(tmp_dir) / WORKBOOK.name
         wb.save(tmp_workbook)
-        restore_sheet_sparklines(WORKBOOK, tmp_workbook, SCENARIO_RESULTS)
+        restore_sheet_sparklines(native_feature_source, tmp_workbook, SCENARIO_RESULTS)
         shutil.copy2(tmp_workbook, WORKBOOK)
 
 

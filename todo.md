@@ -82,6 +82,13 @@ Done:
   - added two compact line charts bound only to `Scenario Analysis` local ranges
   - added conservative presentation-layer defined names and rewired dashboard scenario selector formulas through a helper pointer cell
   - fixed Excel recovery/circular-reference regressions during implementation by switching formula-defined names to range-backed names and restoring `Financial Dashboard!J65` to a plain formula
+- completed baseline-comparison and scenario-surface cleanup pass (session 17)
+  - added `Stay at Jump | Base | Y10/Y15` rows to normalized `tblScenarioResults`
+  - renamed normalized target-gap fields and dashboard labels away from ambiguous `vs ...` wording
+  - rebuilt `Scenario Analysis` as a three-way `Primary / Comparison / Stay at Jump (Base)` surface with explicit delta columns
+  - extended analysis chart helper data so both charts include the fixed Jump baseline series
+  - cleaned up `Scenario Pivot Lab` so it reads as a compact utility sheet rather than a second dashboard
+  - hardened the sparkline-preservation workflow so the final aesthetics pass restores unsupported sheet extensions from a preserved pre-edit workbook copy
 
 Open follow-ups for the next agent:
 - if the user asks for more working years than the current table supports, expand the sheet intentionally instead of patching one row at a time
@@ -92,3 +99,4 @@ Open follow-ups for the next agent:
 - native PivotTables/slicers remain deferred unless a safe template-seeding or manual-creation workflow is established for this Excel environment
 - true sparklines remain deferred; this pass uses compact line charts instead
 - Power Query remains deferred unless external data imports become part of the planning workflow
+- native Excel automation remains flaky in this environment; if cached values need to be verified immediately after a structural pass, be prepared to refresh manually in Excel because both AppleScript and JXA can hang against the live Excel process

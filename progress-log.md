@@ -1,5 +1,48 @@
 # Progress Log
 
+## 2026-04-12 (session 17) - jump baseline comparison and scenario-surface cleanup
+
+Context:
+- User wanted a fixed `Stay at Jump` baseline added to the scenario comparison flow.
+- User also wanted the house-target wording clarified, and felt that `Scenario Analysis` and `Scenario Pivot Lab` still looked rough relative to the rest of the workbook.
+
+Implementation:
+- Extended `Scenario Results` so `tblScenarioResults` now includes two additional normalized rows:
+  - `Stay at Jump | Base | Y10`
+  - `Stay at Jump | Base | Y15`
+- Sourced those baseline rows directly from `Savings Projection`, including liquid net worth, taxable liquid, retirement balance, target-gap formulas, and first-crossing formulas through Y15.
+- Renamed the normalized target-gap headers away from ambiguous `vs ...` wording to:
+  - `Surplus / Shortfall to $5M All-Cash Target`
+  - `Surplus / Shortfall to $5M 50% Down Target`
+  - `Surplus / Shortfall to $7M All-Cash Target`
+  - `Surplus / Shortfall to $7M 50% Down Target`
+  - `Target Status`
+- Reworked `Scenario Analysis` into a three-way compare surface:
+  - `Primary`
+  - `Comparison`
+  - `Stay at Jump (Base)`
+  - plus explicit delta columns for `Primary - Comparison`, `Primary - Jump Base`, and `Comparison - Jump Base`
+- Extended the analysis chart-data block so both charts now include the fixed Jump baseline series.
+- Simplified `Scenario Pivot Lab` into a cleaner utility sheet with a tighter visible surface for Y10 / Y15 liquid-net-worth cuts.
+- Preserved native sparkline XML during the final aesthetics save by passing a preserved pre-edit workbook as the source of unsupported sheet extensions instead of restoring from the already-edited file.
+
+Verification:
+- `uv sync` completed successfully.
+- `uv run python -m py_compile scripts/enhance_workbook_low_risk.py scripts/enhance_workbook_advanced.py scripts/enhance_workbook_aesthetics.py` passed.
+- Ran the workbook rebuild pipeline:
+  - `uv run python scripts/enhance_workbook_low_risk.py`
+  - `uv run python scripts/enhance_workbook_advanced.py --phase 3`
+  - `NET_WORTH_NATIVE_FEATURE_SOURCE=... uv run python scripts/enhance_workbook_aesthetics.py`
+  - `./scripts/validate.sh`
+- Verified structurally with `openpyxl` and zip inspection:
+  - workbook sheet order is now `Financial Dashboard`, `Scenario Analysis`, `Scenario Pivot Lab`, `Model Inputs`, `Savings Projection`, `Scenario Lab`, `IC Switch Scenarios`, `PM After Switch`, `Scenario Results`, `Tax Assumptions`
+  - `tblScenarioResults` now spans `A4:U64`
+  - `Scenario Results` keeps the sparkline `extLst` block after the rebuild
+  - pivot cache / pivot table package parts remain present
+  - baseline rows are present at rows 63 and 64 with formulas linked to `Savings Projection`
+  - dashboard labels now use the clearer house-target wording and `Target Status`
+- Native Excel open/save recalc was not completed in this session because both AppleScript and JXA calls against the live Excel process hung. The workbook is still flagged for full recalculation on open/save.
+
 ## 2026-04-12 (session 14) - workbook cleanup and UX pass
 
 Context:

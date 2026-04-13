@@ -33,6 +33,12 @@ PURPLE = "E4DFEC"
 GRAY = "E7E6E6"
 WHITE = "FFFFFF"
 
+TARGET_5M_ALL_CASH = "Surplus / Shortfall to $5M All-Cash Target"
+TARGET_5M_50_DOWN = "Surplus / Shortfall to $5M 50% Down Target"
+TARGET_7M_ALL_CASH = "Surplus / Shortfall to $7M All-Cash Target"
+TARGET_7M_50_DOWN = "Surplus / Shortfall to $7M 50% Down Target"
+TARGET_STATUS = "Target Status"
+
 
 def sheet_ref(sheet: str, cell: str) -> str:
     col, row = coordinate_from_string(cell)
@@ -105,11 +111,11 @@ def style_result_sheet(ws, last_row: int) -> None:
         "J": 16,
         "K": 14,
         "L": 16,
-        "M": 15,
-        "N": 15,
-        "O": 15,
-        "P": 15,
-        "Q": 30,
+        "M": 22,
+        "N": 22,
+        "O": 22,
+        "P": 22,
+        "Q": 32,
         "R": 15,
         "S": 15,
         "T": 15,
@@ -127,12 +133,13 @@ def style_result_sheet(ws, last_row: int) -> None:
 
     safe_merge(ws, "A2:U2")
     ws["A2"] = (
-        "Normalized view of IC switch and PM-after-switch outcomes. "
+        "Normalized view of stay-at-Jump, IC-switch, and PM-after-switch outcomes. "
         "Use filters or the dashboard selector instead of scanning each scenario sheet separately."
     )
     ws["A2"].fill = PatternFill("solid", fgColor=TEAL)
     ws["A2"].alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
     ws.row_dimensions[2].height = 30
+    ws.row_dimensions[4].height = 42
 
     for cell in ws[4]:
         set_header(cell)
@@ -162,6 +169,30 @@ def add_summary_tables(wb) -> None:
     replace_table(wb["PM After Switch"], "tblPMAfterSwitchSummary", "A21:AF41", "TableStyleMedium4")
 
 
+def threshold_ref(cell: str) -> str:
+    return sheet_ref("IC Switch Scenarios", cell)[1:]
+
+
+def baseline_target_status_formula(liquid_ref: str, horizon: str) -> str:
+    return (
+        f'=IF({liquid_ref}>={threshold_ref("F17")},"Clears $7M 50% by {horizon}",'
+        f'IF({liquid_ref}>={threshold_ref("F16")},"Clears $7M cash by {horizon}",'
+        f'IF({liquid_ref}>={threshold_ref("F15")},"Clears $5M 50% by {horizon}",'
+        f'IF({liquid_ref}>={threshold_ref("F14")},"Clears $5M cash by {horizon}",'
+        f'"Short of $5M retire+house by {horizon}"))))'
+    )
+
+
+def baseline_first_crossing_formula(threshold_cell: str) -> str:
+    match_expr = (
+        f'MATCH(TRUE,INDEX(\'Savings Projection\'!$AI$19:$AI$33>={threshold_ref(threshold_cell)},0),0)'
+    )
+    return (
+        f'=IFERROR("Y"&INDEX(\'Savings Projection\'!$A$19:$A$33,{match_expr})&'
+        f'" / "&INDEX(\'Savings Projection\'!$AO$19:$AO$33,{match_expr}),"Not by Y15")'
+    )
+
+
 def add_scenario_results(wb) -> int:
     if SCENARIO_RESULTS in wb.sheetnames:
         del wb[SCENARIO_RESULTS]
@@ -181,11 +212,11 @@ def add_scenario_results(wb) -> int:
         "Taxable Liquid",
         "Retirement",
         "Liquid Net Worth",
-        "vs $5M Cash",
-        "vs $5M 50%",
-        "vs $7M Cash",
-        "vs $7M 50%",
-        "Read",
+        TARGET_5M_ALL_CASH,
+        TARGET_5M_50_DOWN,
+        TARGET_7M_ALL_CASH,
+        TARGET_7M_50_DOWN,
+        TARGET_STATUS,
         "First $5M Cash",
         "First $5M 50%",
         "First $7M Cash",
@@ -243,6 +274,36 @@ def add_scenario_results(wb) -> int:
                 ]
             )
 
+    baseline_rows = {"Y10": 28, "Y15": 33}
+    for horizon, source_row in baseline_rows.items():
+        liquid_cell = sheet_ref("Savings Projection", f"AI{source_row}")
+        liquid_ref = liquid_cell[1:]
+        rows.append(
+            [
+                None,
+                "Stay at Jump",
+                "Base",
+                "",
+                "",
+                "",
+                "",
+                horizon,
+                sheet_ref("Savings Projection", f"B{source_row}"),
+                sheet_ref("Savings Projection", f"AE{source_row}"),
+                f"={sheet_ref('Savings Projection', f'AF{source_row}')[1:]}+{sheet_ref('Savings Projection', f'AG{source_row}')[1:]}+{sheet_ref('Savings Projection', f'AH{source_row}')[1:]}",
+                liquid_cell,
+                f"={liquid_ref}-{threshold_ref('F14')}",
+                f"={liquid_ref}-{threshold_ref('F15')}",
+                f"={liquid_ref}-{threshold_ref('F16')}",
+                f"={liquid_ref}-{threshold_ref('F17')}",
+                baseline_target_status_formula(liquid_ref, horizon),
+                baseline_first_crossing_formula("F14"),
+                baseline_first_crossing_formula("F15"),
+                baseline_first_crossing_formula("F16"),
+                baseline_first_crossing_formula("F17"),
+            ]
+        )
+
     for row_idx, row_values in enumerate(rows, RESULT_FIRST_ROW):
         for col_idx, value in enumerate(row_values, 1):
             ws.cell(row_idx, col_idx, value)
@@ -252,11 +313,12 @@ def add_scenario_results(wb) -> int:
     style_result_sheet(ws, last_row)
     replace_table(ws, "tblScenarioResults", f"A4:U{last_row}", "TableStyleMedium13")
 
-    safe_merge(ws, "A65:U65")
-    ws["A65"] = "Next-Pass Enhancements"
-    ws["A65"].fill = PatternFill("solid", fgColor=PURPLE)
-    ws["A65"].font = Font(bold=True)
-    ws["A65"].alignment = Alignment(horizontal="left")
+    notes_header_row = last_row + 3
+    safe_merge(ws, f"A{notes_header_row}:U{notes_header_row}")
+    ws[f"A{notes_header_row}"] = "Next-Pass Enhancements"
+    ws[f"A{notes_header_row}"].fill = PatternFill("solid", fgColor=PURPLE)
+    ws[f"A{notes_header_row}"].font = Font(bold=True)
+    ws[f"A{notes_header_row}"].alignment = Alignment(horizontal="left")
 
     notes = [
         "PivotTables and slicers over tblScenarioResults, preferably created with native Excel automation after the normalized table settles.",
@@ -264,7 +326,7 @@ def add_scenario_results(wb) -> int:
         "Named formulas or LET/LAMBDA cleanup for repeated phase-gating logic after a separate formula audit.",
         "Power Query only if external data imports become part of the planning workflow.",
     ]
-    for row_idx, note in enumerate(notes, 66):
+    for row_idx, note in enumerate(notes, notes_header_row + 1):
         safe_merge(ws, f"A{row_idx}:U{row_idx}")
         ws.cell(row_idx, 1, note)
         ws.cell(row_idx, 1).alignment = Alignment(wrap_text=True, vertical="top")
@@ -338,10 +400,10 @@ def add_dashboard_selector(wb, result_last_row: int) -> None:
         ("I105", "Taxable liquid", "J105", lookup("J")),
         ("L105", "Retirement", "M105", lookup("K")),
         ("O105", "Liquid NW", "P105", lookup("L")),
-        ("F107", "vs $5M cash", "G107", lookup("M")),
-        ("I107", "vs $5M 50%", "J107", lookup("N")),
-        ("L107", "vs $7M cash", "M107", lookup("O")),
-        ("O107", "vs $7M 50%", "P107", lookup("P")),
+        ("F107", "Surplus / Shortfall to $5M Home (All-Cash)", "G107", lookup("M")),
+        ("I107", "Surplus / Shortfall to $5M Home (50% Down)", "J107", lookup("N")),
+        ("L107", "Surplus / Shortfall to $7M Home (All-Cash)", "M107", lookup("O")),
+        ("O107", "Surplus / Shortfall to $7M Home (50% Down)", "P107", lookup("P")),
         ("F109", "First $5M cash", "G109", lookup("R")),
         ("I109", "First $5M 50%", "J109", lookup("S")),
         ("L109", "First $7M cash", "M109", lookup("T")),
@@ -355,6 +417,8 @@ def add_dashboard_selector(wb, result_last_row: int) -> None:
         ws[value_cell].alignment = Alignment(horizontal="right", vertical="center", wrap_text=True)
         thin_bottom(ws[value_cell])
 
+    ws["A111"] = TARGET_STATUS
+    set_label(ws["A111"])
     safe_merge(ws, "F111:P111")
     ws["F111"] = lookup("Q")
     ws["F111"].fill = PatternFill("solid", fgColor=TEAL)
@@ -386,6 +450,8 @@ def add_dashboard_selector(wb, result_last_row: int) -> None:
         ws.row_dimensions[row].height = 22
     ws.row_dimensions[101].height = 30
     ws.row_dimensions[103].height = 32
+    ws.row_dimensions[107].height = 42
+    ws.row_dimensions[109].height = 30
     ws.row_dimensions[111].height = 34
 
     for col in range(1, 17):

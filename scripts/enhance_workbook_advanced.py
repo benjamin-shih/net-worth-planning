@@ -23,6 +23,11 @@ from enhance_workbook_low_risk import (
     RED,
     RED_FONT,
     SCENARIO_RESULTS,
+    TARGET_5M_50_DOWN,
+    TARGET_5M_ALL_CASH,
+    TARGET_7M_50_DOWN,
+    TARGET_7M_ALL_CASH,
+    TARGET_STATUS,
     TEAL,
     WHITE,
     WORKBOOK,
@@ -214,8 +219,8 @@ def add_analysis_controls(ws, result_last_row: int) -> None:
 
     safe_merge(ws, "A2:P2")
     ws["A2"] = (
-        "Compare specific switch outcomes quickly, view liquid-net-worth matrices at the chosen horizon, "
-        "and inspect compact Y1-Y15 trajectory charts from the existing scenario helpers."
+        "Compare specific switch outcomes quickly, benchmark them against staying at Jump, view "
+        "liquid-net-worth matrices at the chosen horizon, and inspect compact Y1-Y15 trajectory charts."
     )
     ws["A2"].fill = PatternFill("solid", fgColor=TEAL)
     ws["A2"].alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
@@ -252,6 +257,8 @@ def add_analysis_controls(ws, result_last_row: int) -> None:
         "J8": "Primary result row",
         "J9": "Comparison result key",
         "J10": "Comparison result row",
+        "J11": "Baseline result key",
+        "J12": "Baseline result row",
         "M5": "Primary helper offset",
         "M6": "Comparison helper offset",
         "M7": "Metric index",
@@ -266,15 +273,17 @@ def add_analysis_controls(ws, result_last_row: int) -> None:
     ws["K8"] = f'=IFERROR(MATCH($K$7,\'{SCENARIO_RESULTS}\'!$A$5:$A${result_last_row},0),"")'
     ws["K9"] = '=$K$6&" | "&$B$6&" | "&$G$5'
     ws["K10"] = f'=IFERROR(MATCH($K$9,\'{SCENARIO_RESULTS}\'!$A$5:$A${result_last_row},0),"")'
+    ws["K11"] = '="Stay at Jump | Base | "&$G$5'
+    ws["K12"] = f'=IFERROR(MATCH($K$11,\'{SCENARIO_RESULTS}\'!$A$5:$A${result_last_row},0),"")'
     ws["N5"] = helper_offset_formula("$K$5", "$B$5")
     ws["N6"] = helper_offset_formula("$K$6", "$B$6")
     ws["N7"] = '=IFERROR(MATCH($G$6,$AE$4:$AE$7,0),"")'
 
-    for cell_ref in ("K5", "K6", "K7", "K8", "K9", "K10", "N5", "N6", "N7"):
+    for cell_ref in ("K5", "K6", "K7", "K8", "K9", "K10", "K11", "K12", "N5", "N6", "N7"):
         ws[cell_ref].alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
         thin_bottom(ws[cell_ref])
 
-    for cell_ref in ("K8", "K10", "N5", "N6", "N7"):
+    for cell_ref in ("K8", "K10", "K12", "N5", "N6", "N7"):
         ws[cell_ref].number_format = INT_FMT
 
     clear_validations(ws, ["B5", "B6", "G5", "G6"])
@@ -291,8 +300,16 @@ def add_analysis_controls(ws, result_last_row: int) -> None:
 
 
 def add_summary_table(ws, result_last_row: int) -> None:
-    style_section_header(ws, "A12:D12", "Selected Horizon Comparison")
-    headers = {"A13": "Metric", "B13": "Primary", "C13": "Comparison", "D13": "Primary - Comparison"}
+    style_section_header(ws, "A12:G12", "Selected Horizon Comparison")
+    headers = {
+        "A13": "Metric",
+        "B13": "Primary",
+        "C13": "Comparison",
+        "D13": "Stay at Jump (Base)",
+        "E13": "Primary - Comparison",
+        "F13": "Primary - Jump Base",
+        "G13": "Comparison - Jump Base",
+    }
     for cell_ref, label in headers.items():
         ws[cell_ref] = label
         set_header(ws[cell_ref])
@@ -305,15 +322,15 @@ def add_summary_table(ws, result_last_row: int) -> None:
         ("A18", "Taxable Liquid"),
         ("A19", "Retirement"),
         ("A20", "Liquid Net Worth"),
-        ("A21", "vs $5M Cash"),
-        ("A22", "vs $5M 50%"),
-        ("A23", "vs $7M Cash"),
-        ("A24", "vs $7M 50%"),
+        ("A21", TARGET_5M_ALL_CASH),
+        ("A22", TARGET_5M_50_DOWN),
+        ("A23", TARGET_7M_ALL_CASH),
+        ("A24", TARGET_7M_50_DOWN),
         ("A25", "First $5M Cash"),
         ("A26", "First $5M 50%"),
         ("A27", "First $7M Cash"),
         ("A28", "First $7M 50%"),
-        ("A29", "Read"),
+        ("A29", TARGET_STATUS),
     ]
     for cell_ref, label in labels:
         ws[cell_ref] = label
@@ -340,40 +357,46 @@ def add_summary_table(ws, result_last_row: int) -> None:
     for row, col in lookup_cols.items():
         ws[f"B{row}"] = analysis_result_lookup(col, "$K$8", result_last_row)
         ws[f"C{row}"] = analysis_result_lookup(col, "$K$10", result_last_row)
+        ws[f"D{row}"] = analysis_result_lookup(col, "$K$12", result_last_row)
         thin_bottom(ws[f"B{row}"])
         thin_bottom(ws[f"C{row}"])
+        thin_bottom(ws[f"D{row}"])
         ws[f"B{row}"].alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
         ws[f"C{row}"].alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
+        ws[f"D{row}"].alignment = Alignment(horizontal="left", vertical="center", wrap_text=True)
 
     for row in range(17, 29):
-        ws[f"D{row}"] = numeric_delta_formula(f"B{row}", f"C{row}")
-        thin_bottom(ws[f"D{row}"])
-        ws[f"D{row}"].alignment = Alignment(horizontal="right", vertical="center")
+        ws[f"E{row}"] = numeric_delta_formula(f"B{row}", f"C{row}")
+        ws[f"F{row}"] = numeric_delta_formula(f"B{row}", f"D{row}")
+        ws[f"G{row}"] = numeric_delta_formula(f"C{row}", f"D{row}")
+        for col in ("E", "F", "G"):
+            thin_bottom(ws[f"{col}{row}"])
+            ws[f"{col}{row}"].alignment = Alignment(horizontal="right", vertical="center")
 
     for row in range(17, 25):
-        for col in ("B", "C", "D"):
+        for col in ("B", "C", "D", "E", "F", "G"):
             ws[f"{col}{row}"].number_format = MONEY_FMT
     for row in range(25, 29):
-        for col in ("B", "C", "D"):
+        for col in ("B", "C", "D", "E", "F", "G"):
             ws[f"{col}{row}"].number_format = INT_FMT
 
     green_fill = PatternFill("solid", fgColor=GREEN)
     red_fill = PatternFill("solid", fgColor=RED)
     green_font = Font(color=GREEN_FONT)
     red_font = Font(color=RED_FONT)
-    ws.conditional_formatting.add(
-        "D17:D28",
-        CellIsRule(operator="greaterThanOrEqual", formula=["0"], fill=green_fill, font=green_font),
-    )
-    ws.conditional_formatting.add(
-        "D17:D28",
-        CellIsRule(operator="lessThan", formula=["0"], fill=red_fill, font=red_font),
-    )
+    for cell_range in ("E17:G24",):
+        ws.conditional_formatting.add(
+            cell_range,
+            CellIsRule(operator="greaterThanOrEqual", formula=["0"], fill=green_fill, font=green_font),
+        )
+        ws.conditional_formatting.add(
+            cell_range,
+            CellIsRule(operator="lessThan", formula=["0"], fill=red_fill, font=red_font),
+        )
 
 
 def add_liquid_nw_matrices(ws, result_last_row: int) -> None:
-    del result_last_row  # The formulas use fixed normalized columns; kept for consistent signature.
-
+    del result_last_row
     style_section_header(ws, "A32:D32", '="IC Switch Liquid Net Worth ("&$G$5&")"')
     for cell_ref, label in {"B33": "2x", "C33": "3x", "D33": "4x"}.items():
         ws[cell_ref] = label
@@ -384,10 +407,11 @@ def add_liquid_nw_matrices(ws, result_last_row: int) -> None:
     for row in range(34, 37):
         for col in ("B", "C", "D"):
             ws[f"{col}{row}"] = (
-                f'=SUMIFS(\'{SCENARIO_RESULTS}\'!$L$5:$L$62,'
-                f'\'{SCENARIO_RESULTS}\'!$B$5:$B$62,"IC Switch",'
-                f'\'{SCENARIO_RESULTS}\'!$C$5:$C$62,$A{row}&" "&{col}$33,'
-                f'\'{SCENARIO_RESULTS}\'!$H$5:$H$62,$G$5)'
+                '=SUMIFS('
+                'tblScenarioResults[Liquid Net Worth],'
+                'tblScenarioResults[Path],"IC Switch",'
+                f'tblScenarioResults[Scenario],$A{row}&" "&{col}$33,'
+                'tblScenarioResults[Horizon],$G$5)'
             )
             ws[f"{col}{row}"].number_format = MONEY_FMT
             thin_bottom(ws[f"{col}{row}"])
@@ -409,10 +433,11 @@ def add_liquid_nw_matrices(ws, result_last_row: int) -> None:
     for row in range(34, 39):
         for col in ("K", "L", "M", "N"):
             ws[f"{col}{row}"] = (
-                f'=SUMIFS(\'{SCENARIO_RESULTS}\'!$L$5:$L$62,'
-                f'\'{SCENARIO_RESULTS}\'!$B$5:$B$62,"PM After Switch",'
-                f'\'{SCENARIO_RESULTS}\'!$C$5:$C$62,$J{row}&" "&{col}$33,'
-                f'\'{SCENARIO_RESULTS}\'!$H$5:$H$62,$G$5)'
+                '=SUMIFS('
+                'tblScenarioResults[Liquid Net Worth],'
+                'tblScenarioResults[Path],"PM After Switch",'
+                f'tblScenarioResults[Scenario],$J{row}&" "&{col}$33,'
+                'tblScenarioResults[Horizon],$G$5)'
             )
             ws[f"{col}{row}"].number_format = MONEY_FMT
             thin_bottom(ws[f"{col}{row}"])
@@ -444,14 +469,16 @@ def add_liquid_nw_matrices(ws, result_last_row: int) -> None:
 
 
 def add_chart_data_block(ws) -> None:
-    style_section_header(ws, "X38:AC38", "Chart Data")
+    style_section_header(ws, "X38:AE38", "Chart Data")
     headers = {
         "X41": "Projection Year",
         "Y41": "Calendar Year",
         "Z41": "Primary Selected Metric",
         "AA41": "Comparison Selected Metric",
-        "AB41": "Primary Liquid Net Worth",
-        "AC41": "Comparison Liquid Net Worth",
+        "AB41": "Stay at Jump Selected Metric",
+        "AC41": "Primary Liquid Net Worth",
+        "AD41": "Comparison Liquid Net Worth",
+        "AE41": "Stay at Jump Liquid Net Worth",
     }
     for cell_ref, label in headers.items():
         ws[cell_ref] = label
@@ -462,14 +489,22 @@ def add_chart_data_block(ws) -> None:
         ws[f"Y{row}"] = f"='Model Inputs'!$B$22-1+X{row}"
         ws[f"Z{row}"] = metric_series_formula("$K$5", "$N$5", "$N$7", f"X{row}")
         ws[f"AA{row}"] = metric_series_formula("$K$6", "$N$6", "$N$7", f"X{row}")
-        ws[f"AB{row}"] = liquid_nw_formula("$K$5", "$N$5", f"X{row}")
-        ws[f"AC{row}"] = liquid_nw_formula("$K$6", "$N$6", f"X{row}")
+        ws[f"AB{row}"] = (
+            f'=CHOOSE($N$7,'
+            f"INDEX('Savings Projection'!$B$19:$B$33,X{row}),"
+            f"INDEX('Savings Projection'!$AE$19:$AE$33,X{row}),"
+            f"INDEX('Savings Projection'!$AF$19:$AF$33,X{row})+INDEX('Savings Projection'!$AG$19:$AG$33,X{row})+INDEX('Savings Projection'!$AH$19:$AH$33,X{row}),"
+            f"INDEX('Savings Projection'!$AI$19:$AI$33,X{row}))"
+        )
+        ws[f"AC{row}"] = liquid_nw_formula("$K$5", "$N$5", f"X{row}")
+        ws[f"AD{row}"] = liquid_nw_formula("$K$6", "$N$6", f"X{row}")
+        ws[f"AE{row}"] = f"=INDEX('Savings Projection'!$AI$19:$AI$33,X{row})"
 
         ws[f"X{row}"].number_format = INT_FMT
         ws[f"Y{row}"].number_format = INT_FMT
-        for col in ("Z", "AA", "AB", "AC"):
+        for col in ("Z", "AA", "AB", "AC", "AD", "AE"):
             ws[f"{col}{row}"].number_format = MONEY_FMT
-        for col in ("X", "Y", "Z", "AA", "AB", "AC"):
+        for col in ("X", "Y", "Z", "AA", "AB", "AC", "AD", "AE"):
             thin_bottom(ws[f"{col}{row}"])
 
 
@@ -500,7 +535,7 @@ def add_analysis_charts(ws) -> None:
     style_section_header(ws, "A40:G40", "Trajectory Charts")
     chart_metric = LineChart()
     configure_line_chart(chart_metric, "Selected Metric Trend")
-    metric_data = Reference(ws, min_col=26, min_row=41, max_col=27, max_row=56)
+    metric_data = Reference(ws, min_col=26, min_row=41, max_col=28, max_row=56)
     metric_cats = Reference(ws, min_col=25, min_row=42, max_row=56)
     chart_metric.add_data(metric_data, titles_from_data=True)
     chart_metric.set_categories(metric_cats)
@@ -508,7 +543,7 @@ def add_analysis_charts(ws) -> None:
 
     chart_nw = LineChart()
     configure_line_chart(chart_nw, "Liquid Net Worth Trend")
-    nw_data = Reference(ws, min_col=28, min_row=41, max_col=29, max_row=56)
+    nw_data = Reference(ws, min_col=29, min_row=41, max_col=31, max_row=56)
     nw_cats = Reference(ws, min_col=25, min_row=42, max_row=56)
     chart_nw.add_data(nw_data, titles_from_data=True)
     chart_nw.set_categories(nw_cats)

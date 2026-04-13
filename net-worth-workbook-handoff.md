@@ -1,6 +1,6 @@
 # Net Worth Workbook Handoff
 
-Updated: 2026-04-12 (session 16)
+Updated: 2026-04-12 (session 17)
 
 Workbook:
 - `/Users/benjaminshih/Desktop/Net-Worth-Planning/Net Worth.xlsx`
@@ -13,13 +13,14 @@ This workbook is meant to let the user stress-test a quant-research compensation
 
 Visible sheets:
 - `Financial Dashboard`
+- `Scenario Analysis`
+- `Scenario Pivot Lab`
 - `Model Inputs`
 - `Savings Projection`
 - `Scenario Lab`
 - `IC Switch Scenarios`
 - `PM After Switch`
 - `Scenario Results`
-- `Scenario Analysis`
 - `Tax Assumptions`
 
 Key sheet roles:
@@ -28,8 +29,9 @@ Key sheet roles:
 - `Scenario Lab`: downside / base / upside scenario mechanics, retirement / house affordability outputs, and sensitivity logic.
 - `IC Switch Scenarios`: formula-driven side sheet for switching after 3/4/5 YOE at Jump, modeling two base-salary-only noncompete years, then applying 2x/3x/4x boosted new-firm IC packages anchored to switch-year base + FY bonus accrued through Y8, followed by a bounded post-Y8 IC plateau through Y15, with `$5M` / `$7M` house + immediate-retirement threshold checks and visible Y10 plus Y15 liquid-net-worth readouts.
 - `PM After Switch`: formula-driven side sheet for switching to PM in Y7/Y8 after a first IC job switch, modeling two base-salary-only noncompete years before new-firm or PM comp can start, and continuing that role through Y15, with visible PM net-PnL / payout-share cases, Y10 plus Y15 liquid-net-worth readouts, and the same `$5M` / `$7M` house + immediate-retirement threshold checks. Duplicate 5Y-requested-PM-Y7 rows are intentionally omitted because the noncompete makes the earliest effective PM start Y8.
-- `Scenario Results`: normalized presentation sheet added in session 15. It contains true Excel Table `tblScenarioResults` with one row per IC/PM scenario and Y10/Y15 horizon, plus a visible note listing higher-risk next-pass enhancements. It is a linked presentation layer, not a new calculation engine.
-- `Scenario Analysis`: advanced presentation sheet added in session 16. It contains selector-driven scenario comparisons, selected-horizon IC/PM liquid-net-worth matrices, a local chart-data block, and two compact line charts bound only to the local analysis block rather than directly to the helper engines.
+- `Scenario Results`: normalized presentation sheet added in session 15 and extended in session 17. It contains true Excel Table `tblScenarioResults` with IC-switch, PM-after-switch, and fixed `Stay at Jump | Base | Y10/Y15` rows, plus clearer house-target field names.
+- `Scenario Analysis`: advanced presentation sheet added in session 16 and refined in session 17. It contains selector-driven three-way scenario comparisons (`Primary`, `Comparison`, `Stay at Jump (Base)`), selected-horizon IC/PM liquid-net-worth matrices, a local chart-data block, and two compact line charts bound only to the local analysis block rather than directly to the helper engines.
+- `Scenario Pivot Lab`: compact utility sheet near the front of the workbook for native Excel pivot-style cuts of the normalized scenario table.
 - `Financial Dashboard`: presentation layer reading from the projection and scenario sheets.
 - `Tax Assumptions`: visible tax tables and payroll assumptions.
 
@@ -242,6 +244,20 @@ Editing constraints:
     - Native PivotTables/slicers and Power Query remain deferred. AppleScript/JXA probing on this machine did not yield a safe from-scratch pivot/slicer authoring path, so this pass uses selector-driven tables and compact charts instead.
     - Verification after Excel recalculation: workbook opened normally without recovery prompts, saved and closed through Excel via JXA, all sheets remained visible, no cached formula errors remained, `Scenario Analysis` had two charts with series bound to local ranges only, defined names serialized as plain range names, no lock file remained, and `make validate` passed.
 
+25. **Jump baseline comparison and scenario-surface cleanup** (session 17):
+    - Added `Stay at Jump | Base | Y10` and `Stay at Jump | Base | Y15` rows to `tblScenarioResults`, sourced directly from `Savings Projection`.
+    - Renamed the normalized house-target fields from ambiguous `vs ...` wording to explicit `Surplus / Shortfall ...` headers and renamed `Read` to `Target Status`.
+    - Rebuilt `Scenario Analysis` summary output as a three-way compare block with explicit delta columns versus both the selected comparison and the fixed Jump baseline.
+    - Extended the analysis chart-helper block so both charts include the fixed Jump baseline series.
+    - Cleaned `Scenario Pivot Lab` into a smaller utility surface and moved the sheet near the front of the workbook.
+    - Hardened the sparkline-preservation workflow: the final aesthetics save now restores unsupported sheet-level extension XML from a preserved pre-edit workbook source instead of from the already-edited workbook package.
+    - Structural verification after the rebuild:
+      - workbook sheet order is `Financial Dashboard`, `Scenario Analysis`, `Scenario Pivot Lab`, `Model Inputs`, `Savings Projection`, `Scenario Lab`, `IC Switch Scenarios`, `PM After Switch`, `Scenario Results`, `Tax Assumptions`
+      - `tblScenarioResults` now spans `A4:U64`
+      - `Scenario Results` retains its sparkline `extLst` block after the rebuild
+      - pivot cache / pivot table package parts remain present
+    - Native Excel save-through-refresh was not completed in session 17 because both AppleScript and JXA calls against the live Excel process hung. The workbook is still configured with `fullCalcOnLoad`, `forceFullCalc`, and `calcMode = auto`, so Excel should recalculate on open.
+
 ## Latest Debugging Pass
 
 The latest pass fixed the issues the user flagged about manual extension and stale scenario behavior.
@@ -262,7 +278,30 @@ Current resolution:
 
 ## Current Verified State
 
-Verified after the session-11 Y10/Y15 summary restore and save-through-Excel:
+Verified after the session-17 structural rebuild:
+- workbook package is readable and passes `./scripts/validate.sh`
+- `Scenario Results` headers now read:
+  - `Surplus / Shortfall to $5M All-Cash Target`
+  - `Surplus / Shortfall to $5M 50% Down Target`
+  - `Surplus / Shortfall to $7M All-Cash Target`
+  - `Surplus / Shortfall to $7M 50% Down Target`
+  - `Target Status`
+- `Scenario Results` contains baseline rows at 63 / 64 with:
+  - `Path = Stay at Jump`
+  - `Scenario = Base`
+  - `Horizon = Y10 / Y15`
+- `Scenario Analysis` summary headers now read:
+  - `Primary`
+  - `Comparison`
+  - `Stay at Jump (Base)`
+  - `Primary - Comparison`
+  - `Primary - Jump Base`
+  - `Comparison - Jump Base`
+- `Financial Dashboard` scenario readout labels now use the clearer house-target wording and show `Target Status`
+- pivot cache / pivot table package parts remain in the workbook package
+- `Scenario Results` retains the sparkline extension block after the save
+
+Verified after the earlier session-16 Excel save-through-refresh:
 - `Model Inputs!B28 = 45.3%`; `Model Inputs!B29 = 27.1%`.
 - `Savings Projection!B12 = 10`; `Model Inputs!B19 = 10`; `Model Inputs!F11:H11 = 12 / 10 / 9`.
 - `Savings Projection!BC29` is empty. `Savings Projection!B29` now has the normal output formula `=IF(BB29="","",BB29)` and currently evaluates blank because year 11 is retired.
@@ -295,6 +334,7 @@ Separate gap test on a temp copy also passed:
 
 - The modeled projection horizon is still fixed to the existing table length on `Savings Projection` and scenario blocks. If the user wants many more years beyond the current grid, the sheet structure will need an intentional expansion.
 - Excel cache coherence matters. If the workbook is open in Excel while `openpyxl` edits are written to disk, Excel can later save its stale in-memory state back over those edits.
+- Native Excel automation is currently flaky on this machine. Both AppleScript and JXA calls can hang against a live Excel process even when the workbook itself is closed.
 - Some chart / layout work is subjective and should be validated visually in Excel, not just from formulas.
 
 ## Recommended Next Steps For The Next Agent
